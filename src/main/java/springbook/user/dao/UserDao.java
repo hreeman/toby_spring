@@ -11,13 +11,6 @@ import java.sql.SQLException;
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
 public class UserDao {
-    /** 커넥션을 관리하기 위한 클래스 */
-    private final SimpleConnectionMaker simpleConnectionMaker;
-    
-    public UserDao() {
-        this.simpleConnectionMaker = new SimpleConnectionMaker();
-    }
-    
     /**
      * 사용자 정보 DB 등록
      *
@@ -26,7 +19,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void add(final User user) throws SQLException {
-        final Connection connection = this.simpleConnectionMaker.makeNewConnection();
+        final Connection connection = SimpleConnectionMaker.makeNewConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
@@ -38,7 +31,7 @@ public class UserDao {
         
         preparedStatement.executeUpdate();
         
-        this.simpleConnectionMaker.release(connection, preparedStatement);
+        SimpleConnectionMaker.release(connection, preparedStatement);
     }
     
     /**
@@ -51,7 +44,7 @@ public class UserDao {
      * @throws SQLException
      */
     public User get(final String id) throws SQLException {
-        final Connection connection = this.simpleConnectionMaker.makeNewConnection();
+        final Connection connection = SimpleConnectionMaker.makeNewConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "SELECT * FROM users WHERE id = ?"
@@ -68,7 +61,7 @@ public class UserDao {
             resultSet.getString("password")
         );
         
-        this.simpleConnectionMaker.release(connection, preparedStatement, resultSet);
+        SimpleConnectionMaker.release(connection, preparedStatement, resultSet);
         
         return user;
     }
