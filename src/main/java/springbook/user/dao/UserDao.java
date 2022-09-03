@@ -13,8 +13,8 @@ import java.sql.SQLException;
 public class UserDao {
     private final ConnectionMaker connectionMaker;
     
-    public UserDao() {
-        this.connectionMaker = new KConnectionMaker();
+    public UserDao(final ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
     }
     
     /**
