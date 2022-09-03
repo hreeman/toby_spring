@@ -10,10 +10,14 @@ import java.sql.SQLException;
  * 테스트를 위한 main 메서드를 실행 시키기 위한 클래스
  */
 public class Application {
-    public static void main(final String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(final String[] args) throws SQLException {
         final UserDao userDao = new NUserDao();
         
         final User user = new User("toby", "토비", "toby3");
+        
+        userDao.remove(user.id());
+        System.out.println(user.id() + " 삭제 성공");
+        System.out.println();
         
         userDao.add(user);
     

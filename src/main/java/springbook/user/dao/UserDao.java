@@ -11,6 +11,12 @@ import java.sql.SQLException;
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
 public class UserDao {
+    private final ConnectionMaker connectionMaker;
+    
+    public UserDao() {
+        this.connectionMaker = new KConnectionMaker();
+    }
+    
     /**
      * 사용자 정보 DB 등록
      *
@@ -19,7 +25,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void add(final User user) throws SQLException {
-        final Connection connection = SimpleConnectionMaker.makeNewConnection();
+        final Connection connection = this.connectionMaker.makeNewConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
@@ -31,7 +37,7 @@ public class UserDao {
         
         preparedStatement.executeUpdate();
         
-        SimpleConnectionMaker.release(connection, preparedStatement);
+        this.connectionMaker.release(connection, preparedStatement);
     }
     
     /**
@@ -44,7 +50,7 @@ public class UserDao {
      * @throws SQLException
      */
     public User get(final String id) throws SQLException {
-        final Connection connection = SimpleConnectionMaker.makeNewConnection();
+        final Connection connection = this.connectionMaker.makeNewConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "SELECT * FROM users WHERE id = ?"
@@ -61,8 +67,29 @@ public class UserDao {
             resultSet.getString("password")
         );
         
-        SimpleConnectionMaker.release(connection, preparedStatement, resultSet);
+        this.connectionMaker.release(connection, preparedStatement, resultSet);
         
         return user;
+    }
+    
+    /**
+     * 사용자 정보 DB 에서 삭제
+     *
+     * @param id 아이디
+     *
+     * @throws SQLException
+     */
+    public void remove(final String id) throws SQLException {
+        final Connection connection = this.connectionMaker.makeNewConnection();
+        
+        final PreparedStatement preparedStatement = connection.prepareStatement(
+                "DELETE FROM users WHERE id = ?"
+        );
+        
+        preparedStatement.setString(1, id);
+        
+        preparedStatement.executeUpdate();
+        
+        this.connectionMaker.release(connection, preparedStatement);
     }
 }

@@ -1,20 +1,14 @@
 package springbook.user.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 커넥션을 생성/관리하기 위한 클래스
+ * 커넥션을 생성/관리하기 위한 인터페이스
  */
-public class SimpleConnectionMaker {
-    /** 생성자를 통한 생성 방지 */
-    private SimpleConnectionMaker() {
-        throw new IllegalStateException("생성할 수 없는 클래스 입니다.");
-    }
-    
+public interface ConnectionMaker {
     /**
      * 새로운 커넥션을 생성
      *
@@ -22,9 +16,7 @@ public class SimpleConnectionMaker {
      *
      * @throws SQLException
      */
-    public static Connection makeNewConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mariadb://localhost:3306/toby_spring", "toby", "toby");
-    }
+    Connection makeNewConnection() throws SQLException;
     
     /**
      * DB 연결시 사용한 자원 반납
@@ -34,7 +26,7 @@ public class SimpleConnectionMaker {
      *
      * @throws SQLException
      */
-    public static void release(final Connection connection, final PreparedStatement preparedStatement) throws SQLException {
+    default void release(final Connection connection, final PreparedStatement preparedStatement) throws SQLException {
         release(connection, preparedStatement, null);
     }
     
@@ -47,7 +39,7 @@ public class SimpleConnectionMaker {
      *
      * @throws SQLException
      */
-    public static void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) throws SQLException {
+    default void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) throws SQLException {
         //Connection 객체 자원 반납
         if (connection != null) {
             connection.close();
