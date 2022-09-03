@@ -1,5 +1,6 @@
 package springbook;
 
+import springbook.user.dao.NUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
@@ -10,7 +11,7 @@ import java.sql.SQLException;
  */
 public class Application {
     public static void main(final String[] args) throws SQLException, ClassNotFoundException {
-        final UserDao userDao = new UserDao();
+        final UserDao userDao = new NUserDao();
         
         final User user = new User("toby", "토비", "toby3");
         

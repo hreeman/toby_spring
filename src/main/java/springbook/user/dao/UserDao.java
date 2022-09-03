@@ -11,7 +11,7 @@ import java.sql.SQLException;
 /**
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
-public class UserDao {
+public abstract class UserDao {
     /**
      * 사용자 정보 DB 등록
      *
@@ -82,11 +82,7 @@ public class UserDao {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("org.mariadb.jdbc.Driver");
-    
-        return DriverManager.getConnection("jdbc:mariadb://localhost:3306/toby_spring", "toby", "toby");
-    }
+    protected abstract Connection getConnection() throws ClassNotFoundException, SQLException;
     
     /**
      * DB 연결시 사용한 자원 반납
@@ -115,16 +111,12 @@ public class UserDao {
             connection.close();
         }
     
-        /**
-         * PreparedStatement 객체 자원 반납
-         */
+        //PreparedStatement 객체 자원 반납
         if (preparedStatement != null) {
             preparedStatement.close();
         }
     
-        /**
-         * ResultSet 객체 자원 반납
-         */
+        //ResultSet 객체 자원 반납
         if (resultSet != null) {
             resultSet.close();
         }
