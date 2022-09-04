@@ -10,9 +10,7 @@ public class DaoFactory {
      * @return UserDao 인스턴스
      */
     public UserDao userDao() {
-        final ConnectionMaker connectionMaker = new KConnectionMaker();
-    
-        return new UserDao(connectionMaker);
+        return new UserDao(this.connectionMaker());
     }
     
     /**
@@ -21,9 +19,7 @@ public class DaoFactory {
      * @return AccountDao 인스턴스
      */
     public AccountDao accountDao() {
-        final ConnectionMaker connectionMaker = new KConnectionMaker();
-        
-        return new AccountDao(connectionMaker);
+        return new AccountDao(this.connectionMaker());
     }
     
     /**
@@ -32,8 +28,15 @@ public class DaoFactory {
      * @return MessageDao 인스턴스
      */
     public MessageDao messageDao() {
-        final ConnectionMaker connectionMaker = new KConnectionMaker();
-        
-        return new MessageDao(connectionMaker);
+        return new MessageDao(this.connectionMaker());
+    }
+    
+    /**
+     * ConnectionMaker를 생성
+     *
+     * @return ConnectionMaker 인스턴스
+     */
+    public ConnectionMaker connectionMaker() {
+        return new KConnectionMaker();
     }
 }
