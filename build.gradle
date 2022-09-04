@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework:spring-core:5.3.22'
+    implementation 'org.springframework:spring-context:5.3.22'
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
