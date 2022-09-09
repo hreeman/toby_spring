@@ -46,4 +46,28 @@ public class UserDaoTest {
         assertThat(findUser.name(), is(user.name()));
         assertThat(findUser.password(), is(user.password()));
     }
+    
+    @DisplayName("DB 테이블의 레코드 수 조회 기능 검사")
+    @Test
+    public void count() throws SQLException {
+        final ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        
+        final UserDao userDao = context.getBean("userDao", UserDao.class);
+        
+        final User user1 = new User("gyumee", "박성철", "park1234");
+        final User user2 = new User("kimyh", "김영한", "kim1234");
+        final User user3 = new User("whiteship", "백기선", "white1234");
+    
+        userDao.deleteAll();
+        assertThat(userDao.getCount(), is(0));
+        
+        userDao.add(user1);
+        assertThat(userDao.getCount(), is(1));
+        
+        userDao.add(user2);
+        assertThat(userDao.getCount(), is(2));
+        
+        userDao.add(user3);
+        assertThat(userDao.getCount(), is(3));
+    }
 }
