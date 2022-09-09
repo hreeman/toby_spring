@@ -21,12 +21,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class UserDaoTest {
     private static UserDao userDao;
+    private static User user1;
+    private static User user2;
+    private static User user3;
     
     @BeforeAll
     public static void setUp() {
         final ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
         
         userDao = context.getBean("userDao", UserDao.class);
+        
+        user1 = new User("toby", "토비", "toby3");
+        user2 = new User("kimyh", "김영한", "kim1234");
+        user3 = new User("whiteship", "백기선", "white1234");
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
@@ -37,11 +44,7 @@ public class UserDaoTest {
         
         //데이터 초기화 검증
         assertThat(userDao.getCount(), is(0));
-        
-        //등록할 데이터 생성
-        final User user1 = new User("toby", "토비", "toby3");
-        final User user2 = new User("whiteship", "백기선", "white1234");
-        
+     
         //데이터 등록
         userDao.add(user1);
         userDao.add(user2);
@@ -67,10 +70,6 @@ public class UserDaoTest {
     @DisplayName("DB 테이블의 레코드 수 조회 기능 검사")
     @Test
     public void count() throws SQLException {
-        final User user1 = new User("gyumee", "박성철", "park1234");
-        final User user2 = new User("kimyh", "김영한", "kim1234");
-        final User user3 = new User("whiteship", "백기선", "white1234");
-    
         userDao.deleteAll();
         assertThat(userDao.getCount(), is(0));
     
