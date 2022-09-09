@@ -31,20 +31,29 @@ public class UserDaoTest {
         assertThat(userDao.getCount(), is(0));
         
         //등록할 데이터 생성
-        final User user = new User("toby", "토비", "toby3");
+        final User user1 = new User("toby", "토비", "toby3");
+        final User user2 = new User("whiteship", "백기선", "white1234");
         
         //데이터 등록
-        userDao.add(user);
+        userDao.add(user1);
+        userDao.add(user2);
         
         //카운터 기능 검증
-        assertThat(userDao.getCount(), is(1));
+        assertThat(userDao.getCount(), is(2));
         
         //데이터 조회
-        final User findUser = userDao.get(user.id());
+        final User findUser1 = userDao.get(user1.id());
     
         //테스트
-        assertThat(findUser.name(), is(user.name()));
-        assertThat(findUser.password(), is(user.password()));
+        assertThat(findUser1.name(), is(user1.name()));
+        assertThat(findUser1.password(), is(user1.password()));
+        
+        //데이터 조회
+        final User findUser2 = userDao.get(user2.id());
+    
+        //테스트
+        assertThat(findUser2.name(), is(user2.name()));
+        assertThat(findUser2.password(), is(user2.password()));
     }
     
     @DisplayName("DB 테이블의 레코드 수 조회 기능 검사")
