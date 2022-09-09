@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * 테스트를 위한 main 메서드를 실행 시키기 위한 클래스
@@ -78,5 +80,22 @@ public class UserDaoTest {
         
         userDao.add(user3);
         assertThat(userDao.getCount(), is(3));
+    }
+    
+    @DisplayName("없는 사용자 조회시 예외 발생 검사")
+    @Test
+    public void getUserFailure() throws SQLException {
+        final ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        
+        final UserDao userDao = context.getBean("userDao", UserDao.class);
+        
+        //데이터 초기화
+        userDao.deleteAll();
+        
+        assertThat(userDao.getCount(), is(0));
+    
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            userDao.get("unkown_id");
+        });
     }
 }

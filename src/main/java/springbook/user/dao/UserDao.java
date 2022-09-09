@@ -1,5 +1,6 @@
 package springbook.user.dao;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -7,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
@@ -60,15 +62,22 @@ public class UserDao {
         preparedStatement.setString(1, id);
         
         final ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-        
-        final User user = new User(
-            resultSet.getString("id"),
-            resultSet.getString("name"),
-            resultSet.getString("password")
-        );
     
+        User user = null;
+        
+        if (resultSet.next()) {
+            user = new User(
+                    resultSet.getString("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("password")
+            );
+        }
+        
         ConnectionUtils.release(connection, preparedStatement, resultSet);
+        
+        if (Objects.isNull(user)) {
+            throw new EmptyResultDataAccessException(1);
+        }
         
         return user;
     }
