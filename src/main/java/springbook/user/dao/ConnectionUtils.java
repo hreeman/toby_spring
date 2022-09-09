@@ -6,18 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 커넥션을 생성/관리하기 위한 인터페이스
+ * 커넥션 관련 유틸
  */
-public interface ConnectionMaker {
-    /**
-     * 새로운 커넥션을 생성
-     *
-     * @return 새롭게 생성된 Connection 객체
-     *
-     * @throws SQLException
-     */
-    Connection makeNewConnection() throws SQLException;
-    
+public class ConnectionUtils {
     /**
      * DB 연결시 사용한 자원 반납
      *
@@ -26,7 +17,7 @@ public interface ConnectionMaker {
      *
      * @throws SQLException
      */
-    default void release(final Connection connection, final PreparedStatement preparedStatement) throws SQLException {
+    public static void release(final Connection connection, final PreparedStatement preparedStatement) throws SQLException {
         release(connection, preparedStatement, null);
     }
     
@@ -39,7 +30,7 @@ public interface ConnectionMaker {
      *
      * @throws SQLException
      */
-    default void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) throws SQLException {
+    public static void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) throws SQLException {
         //Connection 객체 자원 반납
         if (connection != null) {
             connection.close();

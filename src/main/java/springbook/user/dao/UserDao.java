@@ -2,6 +2,7 @@ package springbook.user.dao;
 
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,10 +12,10 @@ import java.sql.SQLException;
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
 public class UserDao {
-    private final ConnectionMaker connectionMaker;
+    private DataSource dataSource;
     
-    public UserDao(final ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public void setDataSource(final DataSource dataSource) {
+        this.dataSource = dataSource;
     }
     
     /**
@@ -25,7 +26,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void add(final User user) throws SQLException {
-        final Connection connection = this.connectionMaker.makeNewConnection();
+        final Connection connection = this.dataSource.getConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
@@ -36,8 +37,8 @@ public class UserDao {
         preparedStatement.setString(3, user.password());
         
         preparedStatement.executeUpdate();
-        
-        this.connectionMaker.release(connection, preparedStatement);
+    
+        ConnectionUtils.release(connection, preparedStatement);
     }
     
     /**
@@ -50,7 +51,7 @@ public class UserDao {
      * @throws SQLException
      */
     public User get(final String id) throws SQLException {
-        final Connection connection = this.connectionMaker.makeNewConnection();
+        final Connection connection = this.dataSource.getConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
             "SELECT * FROM users WHERE id = ?"
@@ -66,8 +67,8 @@ public class UserDao {
             resultSet.getString("name"),
             resultSet.getString("password")
         );
-        
-        this.connectionMaker.release(connection, preparedStatement, resultSet);
+    
+        ConnectionUtils.release(connection, preparedStatement, resultSet);
         
         return user;
     }
@@ -80,7 +81,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void remove(final String id) throws SQLException {
-        final Connection connection = this.connectionMaker.makeNewConnection();
+        final Connection connection = this.dataSource.getConnection();
         
         final PreparedStatement preparedStatement = connection.prepareStatement(
                 "DELETE FROM users WHERE id = ?"
@@ -90,6 +91,6 @@ public class UserDao {
         
         preparedStatement.executeUpdate();
         
-        this.connectionMaker.release(connection, preparedStatement);
+        ConnectionUtils.release(connection, preparedStatement);
     }
 }

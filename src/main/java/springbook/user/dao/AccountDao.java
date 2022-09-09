@@ -1,12 +1,14 @@
 package springbook.user.dao;
 
+import javax.sql.DataSource;
+
 /**
  * Account Dao
  */
 public class AccountDao {
-    private final ConnectionMaker connectionMaker;
+    private DataSource dataSource;
     
-    public AccountDao(final ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public void setDataSource(final DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }
