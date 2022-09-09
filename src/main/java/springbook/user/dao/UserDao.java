@@ -76,10 +76,13 @@ public class UserDao {
     /**
      * 사용자 정보 DB 에서 삭제
      *
+     * @deprecated 전체삭제 기능 추가에 따른 미사용. 추후 제거
+     *
      * @param id 아이디
      *
      * @throws SQLException
      */
+    @Deprecated
     public void remove(final String id) throws SQLException {
         final Connection connection = this.dataSource.getConnection();
         
@@ -92,5 +95,47 @@ public class UserDao {
         preparedStatement.executeUpdate();
         
         ConnectionUtils.release(connection, preparedStatement);
+    }
+    
+    /**
+     * DB 사용자 정보 테이블 데이터 전체 삭제
+     *
+     * @throws SQLException
+     */
+    public void deleteAll() throws SQLException {
+        final Connection connection = this.dataSource.getConnection();
+        
+        final PreparedStatement preparedStatement = connection.prepareStatement(
+                "DELETE FROM users"
+        );
+        
+        preparedStatement.executeUpdate();
+        
+        ConnectionUtils.release(connection, preparedStatement);
+    }
+    
+    /**
+     * DB 사용자 정보 테이블 레코드 갯수 조회
+     *
+     * @return 조회된 사용자 정보 전체 테이블 레코드 수
+     *
+     * @throws SQLException
+     */
+    public int getCount() throws SQLException {
+        final Connection connection = this.dataSource.getConnection();
+        
+        final PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT COUNT(*) FROM users"
+        );
+        
+        final ResultSet resultSet = preparedStatement.executeQuery();
+        
+        resultSet.next();
+        
+        final int count = resultSet.getInt(1);
+        
+        ConnectionUtils.release(connection, preparedStatement, resultSet);
+        
+        return count;
     }
 }

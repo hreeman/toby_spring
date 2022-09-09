@@ -24,14 +24,20 @@ public class UserDaoTest {
         final ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
         final UserDao userDao = context.getBean("userDao", UserDao.class);
         
+        //데이터 초기화
+        userDao.deleteAll();
+        
+        //데이터 초기화 검증
+        assertThat(userDao.getCount(), is(0));
+        
         //등록할 데이터 생성
         final User user = new User("toby", "토비", "toby3");
         
-        //데이터 초기화
-        userDao.remove(user.id());
-        
         //데이터 등록
         userDao.add(user);
+        
+        //카운터 기능 검증
+        assertThat(userDao.getCount(), is(1));
         
         //데이터 조회
         final User findUser = userDao.get(user.id());
