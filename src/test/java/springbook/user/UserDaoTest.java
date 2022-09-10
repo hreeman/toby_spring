@@ -3,15 +3,12 @@ package springbook.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import springbook.user.dao.TestDaoFactory;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -21,10 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * 테스트를 위한 main 메서드를 실행 시키기 위한 클래스
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestDaoFactory.class)
 public class UserDaoTest {
-    @Autowired
     private UserDao userDao;
     private User user1;
     private User user2;
@@ -35,6 +29,17 @@ public class UserDaoTest {
         this.user1 = new User("toby", "토비", "toby3");
         this.user2 = new User("kimyh", "김영한", "kim1234");
         this.user3 = new User("whiteship", "백기선", "white1234");
+        
+        this.userDao = new UserDao();
+    
+        final DataSource dataSource = new SingleConnectionDataSource(
+                "jdbc:mariadb://localhost:3306/testdb",
+                "toby",
+                "toby",
+                true
+        );
+        
+        this.userDao.setDataSource(dataSource);
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
