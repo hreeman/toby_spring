@@ -2,9 +2,11 @@ package springbook.learningtest.junit;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -16,23 +18,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * </pre>
  */
 public class JUnitTest {
-    static JUnitTest testObject;
+    static Set<JUnitTest> testObjects = new HashSet<>();
     
     @Test
     public void test1() {
-        assertThat(this, is(not(sameInstance(testObject))));
-        testObject = this;
+        assertThat(testObjects, not(hasItem(this)));
+        testObjects.add(this);
     }
     
     @Test
     public void test2() {
-        assertThat(this, is(not(sameInstance(testObject))));
-        testObject = this;
+        assertThat(testObjects, not(hasItem(this)));
+        testObjects.add(this);
     }
     
     @Test
     public void test3() {
-        assertThat(this, is(not(sameInstance(testObject))));
-        testObject = this;
+        assertThat(testObjects, not(hasItem(this)));
+        testObjects.add(this);
     }
 }
