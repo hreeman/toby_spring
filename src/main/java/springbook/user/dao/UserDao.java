@@ -129,7 +129,7 @@ public class UserDao {
      *
      */
     public void deleteAll() {
-        this.jdbcTemplate.update(connection -> connection.prepareStatement("DELETE FROM users"));
+        this.jdbcTemplate.update("DELETE FROM users");
     }
     
     /**
