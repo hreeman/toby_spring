@@ -44,4 +44,19 @@ public class Calculator {
             }
         }
     }
+    
+    public Integer calcMultiply(final String filePath) throws IOException {
+        final BufferedReaderCallback multiplyCallback = bufferedReader -> {
+            Integer multiply = 1;
+            String line = null;
+        
+            while ((line = bufferedReader.readLine()) != null) {
+                multiply *= Integer.valueOf(line);
+            }
+        
+            return multiply;
+        };
+    
+        return this.fileReadTemplate(filePath, multiplyCallback);
+    }
 }
