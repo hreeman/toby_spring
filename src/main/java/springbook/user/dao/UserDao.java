@@ -132,13 +132,6 @@ public class UserDao {
      *
      */
     public int getCount() {
-        return this.jdbcTemplate.query(
-                connection -> connection.prepareStatement("SELECT COUNT(*) FROM users"),
-                resultSet -> {
-                    resultSet.next();
-                    
-                    return resultSet.getInt(1);
-                }
-        );
+        return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
     }
 }
