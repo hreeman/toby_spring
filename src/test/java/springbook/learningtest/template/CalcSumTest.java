@@ -31,4 +31,10 @@ public class CalcSumTest {
     public void multiplyOfNumbers() throws IOException {
         assertThat(this.calculator.calcMultiply(this.numFilePath), is(24));
     }
+    
+    @DisplayName("파일의 문자열을 합치는 테스트코드")
+    @Test
+    public void concatenateStrings() throws IOException {
+        assertThat(this.calculator.concatenate(this.numFilePath), is("1234"));
+    }
 }

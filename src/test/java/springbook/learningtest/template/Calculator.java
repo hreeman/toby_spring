@@ -6,24 +6,30 @@ import java.io.IOException;
 
 public class Calculator {
     public Integer calcSum(final String filePath) throws IOException {
-        final LineCallback sumCallback = (line, value) -> value + Integer.valueOf(line);
+        final LineCallback<Integer> sumCallback = (line, value) -> value + Integer.valueOf(line);
         
         return this.lineReadTemplate(filePath, sumCallback, 0);
     }
 
     public Integer calcMultiply(final String filePath) throws IOException {
-        final LineCallback multiplyCallback = (line, value) -> value * Integer.valueOf(line);
+        final LineCallback<Integer> multiplyCallback = (line, value) -> value * Integer.valueOf(line);
     
         return this.lineReadTemplate(filePath, multiplyCallback, 1);
     }
+    
+    public String concatenate(final String filePath) throws IOException {
+        final LineCallback<String> concatenateCallback = (line, value) -> value + line;
+        
+        return this.lineReadTemplate(filePath, concatenateCallback, "");
+    }
 
-    public Integer lineReadTemplate(final String filePath, final LineCallback callback, final Integer initVal) throws IOException {
+    public <T> T lineReadTemplate(final String filePath, final LineCallback<T> callback, final T initVal) throws IOException {
         BufferedReader bufferedReader = null;
     
         try {
             bufferedReader = new BufferedReader(new FileReader(filePath));
         
-            Integer res = initVal;
+            T res = initVal;
             String line = null;
     
             while ((line = bufferedReader.readLine()) != null) {
