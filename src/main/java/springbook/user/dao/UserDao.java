@@ -50,40 +50,15 @@ public class UserDao {
      * @throws SQLException
      */
     public User get(final String id) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        User user = null;
-        
-        try {
-            connection = this.dataSource.getConnection();
-    
-            preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM users WHERE id = ?"
-            );
-    
-            preparedStatement.setString(1, id);
-    
-            resultSet = preparedStatement.executeQuery();
-    
-            if (resultSet.next()) {
-                user = new User(
+        return this.jdbcTemplate.queryForObject(
+                "SELECT * FROM users WHERE id = ?",
+                (resultSet, rowNumber) -> new User(
                         resultSet.getString("id"),
                         resultSet.getString("name"),
                         resultSet.getString("password")
-                );
-            }
-    
-            if (Objects.isNull(user)) {
-                throw new EmptyResultDataAccessException(1);
-            }
-    
-            return user;
-        } catch(final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement, resultSet);
-        }
+                ),
+                id
+        );
     }
     
     /**
