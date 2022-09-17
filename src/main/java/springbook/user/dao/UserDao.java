@@ -133,22 +133,9 @@ public class UserDao {
      * @throws SQLException
      */
     public void deleteAll() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        final StatementStrategy strategy = new DeleteAllStatement();
         
-        try {
-            connection = this.dataSource.getConnection();
-    
-            final StatementStrategy strategy = new DeleteAllStatement();
-            
-            preparedStatement = strategy.makePreparedStatement(connection);
-    
-            preparedStatement.executeUpdate();
-        } catch (final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement);
-        }
+        this.jdbcContextWithStatementStrategy(strategy);
     }
     
     /**
@@ -179,6 +166,30 @@ public class UserDao {
             throw e;
         } finally {
             ConnectionUtils.release(connection, preparedStatement, resultSet);
+        }
+    }
+    
+    /**
+     * 메서드로 분리한 try~catch~finally 컨텍스트 코드
+     *
+     * @param strategy 전략
+     *
+     * @throws SQLException
+     */
+    public void jdbcContextWithStatementStrategy(final StatementStrategy strategy) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+    
+        try {
+            connection = this.dataSource.getConnection();
+        
+            preparedStatement = strategy.makePreparedStatement(connection);
+        
+            preparedStatement.executeUpdate();
+        } catch (final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement);
         }
     }
 }
