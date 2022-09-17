@@ -7,21 +7,32 @@ import java.io.IOException;
 
 public class Calculator {
     public Integer calcSum(final String filePath) throws IOException {
-        BufferedReader bufferedReader = null;
-        
-        try {
-            bufferedReader = new BufferedReader(new FileReader(filePath));
+        final BufferedReaderCallback sumCallback = bufferedReader -> {
             Integer sum = 0;
             String line = null;
-    
+
             while ((line = bufferedReader.readLine()) != null) {
                 sum += Integer.valueOf(line);
             }
-    
+
             return sum;
+        };
+        
+        return this.fileReadTemplate(filePath, sumCallback);
+    }
+    
+    public Integer fileReadTemplate(final String filePath, final BufferedReaderCallback callback) throws IOException {
+        BufferedReader bufferedReader = null;
+    
+        try {
+            bufferedReader = new BufferedReader(new FileReader(filePath));
+            
+            int ret = callback.doSomethingWithReader(bufferedReader);
+            
+            return ret;
         } catch (final IOException e) {
             System.out.println(e.getMessage());
-            
+        
             throw e;
         } finally {
             if (bufferedReader != null) {
