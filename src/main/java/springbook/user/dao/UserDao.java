@@ -34,15 +34,8 @@ public class UserDao {
         try {
             connection = this.dataSource.getConnection();
             
-            preparedStatement = connection.prepareStatement(
-                "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
-            );
-            
-            preparedStatement.setString(1, user.id());
-            preparedStatement.setString(2, user.name());
-            preparedStatement.setString(3, user.password());
-            
-            preparedStatement.executeUpdate();
+            final StatementStrategy strategy = new AddStatement(user);
+            this.jdbcContextWithStatementStrategy(strategy);
         } catch (final SQLException e) {
             throw e;
         } finally {
