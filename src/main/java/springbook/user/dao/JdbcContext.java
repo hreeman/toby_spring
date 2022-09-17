@@ -31,4 +31,14 @@ public class JdbcContext {
             ConnectionUtils.release(connection, preparedStatement);
         }
     }
+    
+    /**
+     * 익명 내부 클래스에서 변하지 않는 부분을 분리
+     *
+     * @param query
+     * @throws SQLException
+     */
+    public void executeSql(final String query) throws SQLException {
+        this.workWithStatementStrategy(connection -> connection.prepareStatement(query));
+    }
 }
