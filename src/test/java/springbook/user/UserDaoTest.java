@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import springbook.user.dao.JdbcContext;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 

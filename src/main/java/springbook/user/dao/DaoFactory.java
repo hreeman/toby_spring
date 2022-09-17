@@ -69,18 +69,4 @@ public class DaoFactory {
         
         return dataSource;
     }
-    
-    /**
-     * JDBC Context 생성
-     *
-     * @return JDBC Context 인스턴스
-     */
-    @Bean
-    public JdbcContext jdbcContext() {
-        final JdbcContext jdbcContext = new JdbcContext();
-        
-        jdbcContext.setDataSource(this.dataSource());
-        
-        return jdbcContext;
-    }
 }

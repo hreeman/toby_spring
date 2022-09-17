@@ -1,15 +1,10 @@
 package springbook.user.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Objects;
 
 /**
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
@@ -59,37 +54,6 @@ public class UserDao {
                 ),
                 id
         );
-    }
-    
-    /**
-     * 사용자 정보 DB 에서 삭제
-     *
-     * @deprecated 전체삭제 기능 추가에 따른 미사용. 추후 제거
-     *
-     * @param id 아이디
-     *
-     * @throws SQLException
-     */
-    @Deprecated
-    public void remove(final String id) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        
-        try {
-            connection = this.dataSource.getConnection();
-    
-            preparedStatement = connection.prepareStatement(
-                    "DELETE FROM users WHERE id = ?"
-            );
-    
-            preparedStatement.setString(1, id);
-    
-            preparedStatement.executeUpdate();
-        } catch(final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement);
-        }
     }
     
     /**
