@@ -40,11 +40,7 @@ public class UserDaoTest {
                 true
         );
         
-        final JdbcContext jdbcContext = new JdbcContext();
-        jdbcContext.setDataSource(dataSource);
-        
         this.userDao.setDataSource(dataSource);
-        this.userDao.setJdbcContext(jdbcContext);
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")

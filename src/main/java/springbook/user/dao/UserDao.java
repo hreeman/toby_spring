@@ -2,7 +2,6 @@ package springbook.user.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -31,20 +30,14 @@ public class UserDao {
      *
      * @param user 사용자 정보가 담긴 User 객체
      *
-     * @throws SQLException
      */
-    public void add(final User user) throws SQLException {
-//        this.jdbcContext.workWithStatementStrategy(connection -> {
-//            final PreparedStatement preparedStatement = connection.prepareStatement(
-//                    "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
-//            );
-//
-//            preparedStatement.setString(1, user.id());
-//            preparedStatement.setString(2, user.name());
-//            preparedStatement.setString(3, user.password());
-//
-//            return preparedStatement;
-//        });
+    public void add(final User user) {
+        this.jdbcTemplate.update(
+                "INSERT INTO users(id, name, password) VALUES (?, ?, ?)",
+                user.id(),
+                user.name(),
+                user.password()
+        );
     }
     
     /**
