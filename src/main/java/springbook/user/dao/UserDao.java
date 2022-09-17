@@ -5,6 +5,7 @@ import springbook.user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
@@ -72,5 +73,22 @@ public class UserDao {
      */
     public int getCount() {
         return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+    }
+    
+    /**
+     * DB 사용자 정보 전체 목록 조회
+     *
+     * @return 사용자 정보 전체 목록
+     */
+    public List<User> getAll() {
+        return this.jdbcTemplate.query(
+                "SELECT * FROM users ORDER BY id",
+                (resultSet, rowNumber) -> new User(
+                        resultSet.getString("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("password")
+                )
+        );
+        
     }
 }

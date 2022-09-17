@@ -10,6 +10,7 @@ import springbook.user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,7 +76,7 @@ public class UserDaoTest {
     
     @DisplayName("DB 테이블의 레코드 수 조회 기능 검사")
     @Test
-    public void count() throws SQLException {
+    public void count() {
         this.userDao.deleteAll();
         assertThat(this.userDao.getCount(), is(0));
     
@@ -91,7 +92,7 @@ public class UserDaoTest {
     
     @DisplayName("없는 사용자 조회시 예외 발생 검사")
     @Test
-    public void getUserFailure() throws SQLException {
+    public void getUserFailure() {
         //데이터 초기화
         this.userDao.deleteAll();
         
@@ -100,5 +101,35 @@ public class UserDaoTest {
         assertThrows(EmptyResultDataAccessException.class, () -> {
             this.userDao.get("unkown_id");
         });
+    }
+    
+    @DisplayName("전체 데이터 조회 검사")
+    @Test
+    public void getAll() {
+        //데이터 초기화
+        this.userDao.deleteAll();
+        
+        this.userDao.add(user1);
+        final List<User> users1 = this.userDao.getAll();
+        assertThat(users1.size(), is(1));
+        
+        this.userDao.add(user2);
+        final List<User> users2 = this.userDao.getAll();
+        assertThat(users2.size(), is(2));
+        checkSameUser(user2, users2.get(0)); //id값 알파벳순으로 검사하므로 user2가 user1보다 선행
+        checkSameUser(user1, users2.get(1));
+        
+        this.userDao.add(user3);
+        final List<User> users3 = this.userDao.getAll();
+        assertThat(users3.size(), is(3));
+        checkSameUser(user2, users3.get(0));
+        checkSameUser(user1, users3.get(1));
+        checkSameUser(user3, users3.get(2));
+    }
+    
+    private void checkSameUser(final User user, final User findUser) {
+        assertThat(user.id(), is(findUser.id()));
+        assertThat(user.name(), is(findUser.name()));
+        assertThat(user.password(), is(findUser.password()));
     }
 }
