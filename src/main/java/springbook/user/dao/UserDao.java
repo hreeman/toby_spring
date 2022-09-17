@@ -20,6 +20,12 @@ public class UserDao {
         this.dataSource = dataSource;
     }
     
+    private JdbcContext jdbcContext;
+    
+    public void setJdbcContext(final JdbcContext jdbcContext) {
+        this.jdbcContext = jdbcContext;
+    }
+    
     /**
      * 사용자 정보 DB 등록
      *
@@ -28,7 +34,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void add(final User user) throws SQLException {
-        this.jdbcContextWithStatementStrategy(connection -> {
+        this.jdbcContext.workWithStatementStrategy(connection -> {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                     "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
             );
@@ -124,7 +130,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void deleteAll() throws SQLException {
-        this.jdbcContextWithStatementStrategy(connection -> connection.prepareStatement(
+        this.jdbcContext.workWithStatementStrategy(connection -> connection.prepareStatement(
                 "DELETE FROM users"
         ));
     }
@@ -157,30 +163,6 @@ public class UserDao {
             throw e;
         } finally {
             ConnectionUtils.release(connection, preparedStatement, resultSet);
-        }
-    }
-    
-    /**
-     * 메서드로 분리한 try~catch~finally 컨텍스트 코드
-     *
-     * @param strategy 전략
-     *
-     * @throws SQLException
-     */
-    public void jdbcContextWithStatementStrategy(final StatementStrategy strategy) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-    
-        try {
-            connection = this.dataSource.getConnection();
-        
-            preparedStatement = strategy.makePreparedStatement(connection);
-        
-            preparedStatement.executeUpdate();
-        } catch (final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement);
         }
     }
 }

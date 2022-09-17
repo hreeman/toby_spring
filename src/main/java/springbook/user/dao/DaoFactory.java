@@ -21,6 +21,7 @@ public class DaoFactory {
         final UserDao userDao = new UserDao();
     
         userDao.setDataSource(this.dataSource());
+        userDao.setJdbcContext(this.jdbcContext());
     
         return userDao;
     }
@@ -68,5 +69,19 @@ public class DaoFactory {
         dataSource.setPassword("toby");
         
         return dataSource;
+    }
+    
+    /**
+     * JDBC Context 생성
+     *
+     * @return JDBC Context 인스턴스
+     */
+    @Bean
+    public JdbcContext jdbcContext() {
+        final JdbcContext jdbcContext = new JdbcContext();
+        
+        jdbcContext.setDataSource(this.dataSource());
+        
+        return jdbcContext;
     }
 }
