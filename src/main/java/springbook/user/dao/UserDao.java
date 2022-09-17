@@ -30,39 +30,22 @@ public class UserDao {
     public void add(final User user) throws SQLException {
         //메서드 레벨에 정의된 로컬 클래스
         class AddStatement implements StatementStrategy {
-            private final User user;
-        
-            public AddStatement(final User user) {
-                this.user = user;
-            }
-        
             @Override
             public PreparedStatement makePreparedStatement(final Connection connection) throws SQLException {
                 final PreparedStatement preparedStatement = connection.prepareStatement(
                         "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
                 );
             
-                preparedStatement.setString(1, this.user.id());
-                preparedStatement.setString(2, this.user.name());
-                preparedStatement.setString(3, this.user.password());
+                preparedStatement.setString(1, user.id());
+                preparedStatement.setString(2, user.name());
+                preparedStatement.setString(3, user.password());
             
                 return preparedStatement;
             }
         }
-        
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        
-        try {
-            connection = this.dataSource.getConnection();
-            
-            final StatementStrategy strategy = new AddStatement(user);
-            this.jdbcContextWithStatementStrategy(strategy);
-        } catch (final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement);
-        }
+    
+        final StatementStrategy strategy = new AddStatement();
+        this.jdbcContextWithStatementStrategy(strategy);
     }
     
     /**
