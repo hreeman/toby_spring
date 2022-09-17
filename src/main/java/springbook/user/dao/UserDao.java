@@ -130,29 +130,15 @@ public class UserDao {
      *
      * @return 조회된 사용자 정보 전체 테이블 레코드 수
      *
-     * @throws SQLException
      */
-    public int getCount() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        
-        try {
-            connection = this.dataSource.getConnection();
-    
-            preparedStatement = connection.prepareStatement(
-                    "SELECT COUNT(*) FROM users"
-            );
-    
-            resultSet = preparedStatement.executeQuery();
-    
-            resultSet.next();
-    
-            return resultSet.getInt(1);
-        } catch (final SQLException e) {
-            throw e;
-        } finally {
-            ConnectionUtils.release(connection, preparedStatement, resultSet);
-        }
+    public int getCount() {
+        return this.jdbcTemplate.query(
+                connection -> connection.prepareStatement("SELECT COUNT(*) FROM users"),
+                resultSet -> {
+                    resultSet.next();
+                    
+                    return resultSet.getInt(1);
+                }
+        );
     }
 }
