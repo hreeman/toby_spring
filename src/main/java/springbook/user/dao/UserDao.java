@@ -1,6 +1,7 @@
 package springbook.user.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -11,6 +12,12 @@ import java.util.List;
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
 public class UserDao {
+    private final RowMapper<User> userRowMapper = (resultSet, rowNumber) -> new User(
+            resultSet.getString("id"),
+            resultSet.getString("name"),
+            resultSet.getString("password")
+    );
+    
     private JdbcTemplate jdbcTemplate;
     
     public void setDataSource(final DataSource dataSource) {
@@ -44,11 +51,7 @@ public class UserDao {
     public User get(final String id) throws SQLException {
         return this.jdbcTemplate.queryForObject(
                 "SELECT * FROM users WHERE id = ?",
-                (resultSet, rowNumber) -> new User(
-                        resultSet.getString("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("password")
-                ),
+                this.userRowMapper,
                 id
         );
     }
@@ -79,11 +82,7 @@ public class UserDao {
     public List<User> getAll() {
         return this.jdbcTemplate.query(
                 "SELECT * FROM users ORDER BY id",
-                (resultSet, rowNumber) -> new User(
-                        resultSet.getString("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("password")
-                )
+                this.userRowMapper
         );
         
     }
