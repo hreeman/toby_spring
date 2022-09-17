@@ -124,9 +124,9 @@ public class UserDao {
      * @throws SQLException
      */
     public void deleteAll() throws SQLException {
-        final StatementStrategy strategy = new DeleteAllStatement();
-        
-        this.jdbcContextWithStatementStrategy(strategy);
+        this.jdbcContextWithStatementStrategy(connection -> connection.prepareStatement(
+                "DELETE FROM users"
+        ));
     }
     
     /**
