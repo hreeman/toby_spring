@@ -109,6 +109,10 @@ public class UserDaoTest {
         //데이터 초기화
         this.userDao.deleteAll();
         
+        //네거티브 테스트 - 데이터가 없을 경우 어떤 결과인지? (개발자는 예외를 발생 시키던, 빈 값을 던지던 어쨌든 하나의 기준을 둬야 한다)
+        final List<User> users0 = this.userDao.getAll();
+        assertThat(users0.size(), is(0));
+        
         this.userDao.add(user1);
         final List<User> users1 = this.userDao.getAll();
         assertThat(users1.size(), is(1));
