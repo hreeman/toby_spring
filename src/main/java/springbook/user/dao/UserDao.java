@@ -11,15 +11,11 @@ import java.util.List;
  * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
  */
 public class UserDao {
-    private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
     
     public void setDataSource(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        
-        this.dataSource = dataSource;
     }
-    
     
     /**
      * 사용자 정보 DB 등록
