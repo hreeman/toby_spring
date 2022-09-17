@@ -28,19 +28,26 @@ public class UserDao {
      * @throws SQLException
      */
     public void add(final User user) throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
         
-        final PreparedStatement preparedStatement = connection.prepareStatement(
-            "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
-        );
-        
-        preparedStatement.setString(1, user.id());
-        preparedStatement.setString(2, user.name());
-        preparedStatement.setString(3, user.password());
-        
-        preparedStatement.executeUpdate();
-    
-        ConnectionUtils.release(connection, preparedStatement);
+        try {
+            connection = this.dataSource.getConnection();
+            
+            preparedStatement = connection.prepareStatement(
+                "INSERT INTO users(id, name, password) VALUES (?, ?, ?)"
+            );
+            
+            preparedStatement.setString(1, user.id());
+            preparedStatement.setString(2, user.name());
+            preparedStatement.setString(3, user.password());
+            
+            preparedStatement.executeUpdate();
+        } catch (final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement);
+        }
     }
     
     /**
@@ -53,33 +60,40 @@ public class UserDao {
      * @throws SQLException
      */
     public User get(final String id) throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
-        
-        final PreparedStatement preparedStatement = connection.prepareStatement(
-            "SELECT * FROM users WHERE id = ?"
-        );
-        
-        preparedStatement.setString(1, id);
-        
-        final ResultSet resultSet = preparedStatement.executeQuery();
-    
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         User user = null;
         
-        if (resultSet.next()) {
-            user = new User(
-                    resultSet.getString("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("password")
+        try {
+            connection = this.dataSource.getConnection();
+    
+            preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM users WHERE id = ?"
             );
+    
+            preparedStatement.setString(1, id);
+    
+            resultSet = preparedStatement.executeQuery();
+    
+            if (resultSet.next()) {
+                user = new User(
+                        resultSet.getString("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("password")
+                );
+            }
+    
+            if (Objects.isNull(user)) {
+                throw new EmptyResultDataAccessException(1);
+            }
+    
+            return user;
+        } catch(final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement, resultSet);
         }
-        
-        ConnectionUtils.release(connection, preparedStatement, resultSet);
-        
-        if (Objects.isNull(user)) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        
-        return user;
     }
     
     /**
@@ -93,17 +107,24 @@ public class UserDao {
      */
     @Deprecated
     public void remove(final String id) throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
         
-        final PreparedStatement preparedStatement = connection.prepareStatement(
-                "DELETE FROM users WHERE id = ?"
-        );
-        
-        preparedStatement.setString(1, id);
-        
-        preparedStatement.executeUpdate();
-        
-        ConnectionUtils.release(connection, preparedStatement);
+        try {
+            connection = this.dataSource.getConnection();
+    
+            preparedStatement = connection.prepareStatement(
+                    "DELETE FROM users WHERE id = ?"
+            );
+    
+            preparedStatement.setString(1, id);
+    
+            preparedStatement.executeUpdate();
+        } catch(final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement);
+        }
     }
     
     /**
@@ -112,15 +133,22 @@ public class UserDao {
      * @throws SQLException
      */
     public void deleteAll() throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
         
-        final PreparedStatement preparedStatement = connection.prepareStatement(
-                "DELETE FROM users"
-        );
-        
-        preparedStatement.executeUpdate();
-        
-        ConnectionUtils.release(connection, preparedStatement);
+        try {
+            connection = this.dataSource.getConnection();
+    
+            preparedStatement = connection.prepareStatement(
+                    "DELETE FROM users"
+            );
+    
+            preparedStatement.executeUpdate();
+        } catch (final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement);
+        }
     }
     
     /**
@@ -131,20 +159,26 @@ public class UserDao {
      * @throws SQLException
      */
     public int getCount() throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         
-        final PreparedStatement preparedStatement = connection.prepareStatement(
-                "SELECT COUNT(*) FROM users"
-        );
-        
-        final ResultSet resultSet = preparedStatement.executeQuery();
-        
-        resultSet.next();
-        
-        final int count = resultSet.getInt(1);
-        
-        ConnectionUtils.release(connection, preparedStatement, resultSet);
-        
-        return count;
+        try {
+            connection = this.dataSource.getConnection();
+    
+            preparedStatement = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM users"
+            );
+    
+            resultSet = preparedStatement.executeQuery();
+    
+            resultSet.next();
+    
+            return resultSet.getInt(1);
+        } catch (final SQLException e) {
+            throw e;
+        } finally {
+            ConnectionUtils.release(connection, preparedStatement, resultSet);
+        }
     }
 }

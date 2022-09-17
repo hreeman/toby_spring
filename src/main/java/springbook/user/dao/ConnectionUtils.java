@@ -30,20 +30,29 @@ public class ConnectionUtils {
      *
      * @throws SQLException
      */
-    public static void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) throws SQLException {
-        //Connection 객체 자원 반납
-        if (connection != null) {
-            connection.close();
-        }
-        
-        //PreparedStatement 객체 자원 반납
-        if (preparedStatement != null) {
-            preparedStatement.close();
-        }
-        
+    public static void release(final Connection connection, final PreparedStatement preparedStatement, final ResultSet resultSet) {
         //ResultSet 객체 자원 반납
         if (resultSet != null) {
-            resultSet.close();
+            try {
+                resultSet.close();
+            } catch (final SQLException e) {
+            }
+        }
+    
+        //PreparedStatement 객체 자원 반납
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (final SQLException e) {
+            }
+        }
+        
+        //Connection 객체 자원 반납
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (final SQLException e) {
+            }
         }
     }
 }
