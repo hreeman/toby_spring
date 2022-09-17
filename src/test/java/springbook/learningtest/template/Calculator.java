@@ -1,35 +1,36 @@
 package springbook.learningtest.template;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class Calculator {
     public Integer calcSum(final String filePath) throws IOException {
-        final BufferedReaderCallback sumCallback = bufferedReader -> {
-            Integer sum = 0;
-            String line = null;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                sum += Integer.valueOf(line);
-            }
-
-            return sum;
-        };
+        final LineCallback sumCallback = (line, value) -> value + Integer.valueOf(line);
         
-        return this.fileReadTemplate(filePath, sumCallback);
+        return this.lineReadTemplate(filePath, sumCallback, 0);
     }
+
+    public Integer calcMultiply(final String filePath) throws IOException {
+        final LineCallback multiplyCallback = (line, value) -> value * Integer.valueOf(line);
     
-    public Integer fileReadTemplate(final String filePath, final BufferedReaderCallback callback) throws IOException {
+        return this.lineReadTemplate(filePath, multiplyCallback, 1);
+    }
+
+    public Integer lineReadTemplate(final String filePath, final LineCallback callback, final Integer initVal) throws IOException {
         BufferedReader bufferedReader = null;
     
         try {
             bufferedReader = new BufferedReader(new FileReader(filePath));
-            
-            int ret = callback.doSomethingWithReader(bufferedReader);
-            
-            return ret;
+        
+            Integer res = initVal;
+            String line = null;
+    
+            while ((line = bufferedReader.readLine()) != null) {
+                res = callback.doSomethingWithLine(line, res);
+            }
+        
+            return res;
         } catch (final IOException e) {
             System.out.println(e.getMessage());
         
@@ -43,20 +44,5 @@ public class Calculator {
                 }
             }
         }
-    }
-    
-    public Integer calcMultiply(final String filePath) throws IOException {
-        final BufferedReaderCallback multiplyCallback = bufferedReader -> {
-            Integer multiply = 1;
-            String line = null;
-        
-            while ((line = bufferedReader.readLine()) != null) {
-                multiply *= Integer.valueOf(line);
-            }
-        
-            return multiply;
-        };
-    
-        return this.fileReadTemplate(filePath, multiplyCallback);
     }
 }
