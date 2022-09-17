@@ -130,9 +130,7 @@ public class UserDao {
      * @throws SQLException
      */
     public void deleteAll() throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(connection -> connection.prepareStatement(
-                "DELETE FROM users"
-        ));
+        this.executeSql("DELETE FROM users");
     }
     
     /**
@@ -164,5 +162,15 @@ public class UserDao {
         } finally {
             ConnectionUtils.release(connection, preparedStatement, resultSet);
         }
+    }
+    
+    /**
+     * 익명 내부 클래스에서 변하지 않는 부분을 분리
+     *
+     * @param query
+     * @throws SQLException
+     */
+    private void executeSql(final String query) throws SQLException {
+        this.jdbcContext.workWithStatementStrategy(connection -> connection.prepareStatement(query));
     }
 }
