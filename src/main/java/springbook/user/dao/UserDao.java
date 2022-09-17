@@ -139,9 +139,9 @@ public class UserDao {
         try {
             connection = this.dataSource.getConnection();
     
-            preparedStatement = connection.prepareStatement(
-                    "DELETE FROM users"
-            );
+            final StatementStrategy strategy = new DeleteAllStatement();
+            
+            preparedStatement = strategy.makePreparedStatement(connection);
     
             preparedStatement.executeUpdate();
         } catch (final SQLException e) {
