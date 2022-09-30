@@ -3,11 +3,11 @@ package springbook.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.test.annotation.Commit;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import springbook.user.dao.UserDao;
 import springbook.user.dao.UserDaoJdbc;
 import springbook.user.domain.User;
@@ -27,6 +27,7 @@ public class UserDaoTest {
     private User user1;
     private User user2;
     private User user3;
+    private DataSource dataSource;
     
     @BeforeEach
     public void setUp() {
@@ -44,6 +45,7 @@ public class UserDaoTest {
         );
     
         ((UserDaoJdbc) this.userDao).setDataSource(dataSource);
+        this.dataSource = dataSource;
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
@@ -143,6 +145,23 @@ public class UserDaoTest {
             this.userDao.add(user1);
             this.userDao.add(user1);
         });
+    }
+    
+    @DisplayName("SQLException 전환 학습 테스트")
+    @Test
+    public void sqlExceptionTranslate() {
+        //데이터 초기화
+        this.userDao.deleteAll();
+        
+        try {
+            this.userDao.add(user1);
+            this.userDao.add(user1);
+        } catch (final DuplicateKeyException e) {
+            final SQLException sqlException = (SQLException) e.getRootCause();
+            final SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
+            
+            assertThat(set.translate(null, null, sqlException)).isOfAnyClassIn(DuplicateKeyException.class);
+        }
     }
     
     private void checkSameUser(final User user, final User findUser) {
