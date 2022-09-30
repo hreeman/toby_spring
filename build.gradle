@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.springframework:spring-jdbc:5.3.22'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testImplementation 'org.assertj:assertj-core:3.23.1'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation 'org.springframework:spring-test:5.3.22'
 
