@@ -3,13 +3,16 @@ package springbook.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
-import springbook.user.dao.UserDaoJdbc;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -22,12 +25,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * 테스트를 위한 main 메서드를 실행 시키기 위한 클래스
  */
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = DaoFactory.class)
 public class UserDaoTest {
+    @Autowired
     private UserDao userDao;
+    @Autowired
+    private DataSource dataSource;
     private User user1;
     private User user2;
     private User user3;
-    private DataSource dataSource;
     
     @BeforeEach
     public void setUp() {
