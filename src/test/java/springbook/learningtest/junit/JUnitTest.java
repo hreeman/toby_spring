@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -39,7 +36,7 @@ public class JUnitTest {
     
     @Test
     public void test1() {
-        assertThat(testObjects).isNotIn(this);
+        assertThat(testObjects).doesNotContain(this);
         testObjects.add(this);
         
         assertThat((contextObject == null || contextObject == this.context)).isTrue();
@@ -48,7 +45,7 @@ public class JUnitTest {
     
     @Test
     public void test2() {
-        assertThat(testObjects).isNotIn(this);
+        assertThat(testObjects).doesNotContain(this);
         testObjects.add(this);
     
         assertTrue(contextObject == null || contextObject == this.context);
@@ -57,10 +54,10 @@ public class JUnitTest {
     
     @Test
     public void test3() {
-        assertThat(testObjects).isNotIn(this);
+        assertThat(testObjects).doesNotContain(this);
         testObjects.add(this);
     
-        org.hamcrest.MatcherAssert.assertThat(contextObject, either(is(nullValue())).or(is(this.context)));
+        assertTrue(contextObject == null || contextObject == this.context);
         contextObject = this.context;
     }
     

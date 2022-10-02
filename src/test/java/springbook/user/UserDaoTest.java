@@ -41,18 +41,6 @@ public class UserDaoTest {
         this.user1 = new User("toby", "토비", "toby3");
         this.user2 = new User("kimyh", "김영한", "kim1234");
         this.user3 = new User("whiteship", "백기선", "white1234");
-        
-        this.userDao = new UserDaoJdbc();
-    
-        final DataSource dataSource = new SingleConnectionDataSource(
-                "jdbc:mariadb://localhost:3306/testdb",
-                "toby",
-                "toby",
-                true
-        );
-    
-        ((UserDaoJdbc) this.userDao).setDataSource(dataSource);
-        this.dataSource = dataSource;
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
