@@ -7,5 +7,5 @@ package springbook.user.domain;
  * @param name 이름
  * @param password 비밀번호
  */
-public record User(String id, String name, String password) {
+public record User(String id, String name, String password, Level level, int login, int recommend) {
 }

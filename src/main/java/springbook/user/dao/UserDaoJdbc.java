@@ -2,6 +2,7 @@ package springbook.user.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -14,7 +15,10 @@ public class UserDaoJdbc implements UserDao {
     private final RowMapper<User> userRowMapper = (resultSet, rowNumber) -> new User(
             resultSet.getString("id"),
             resultSet.getString("name"),
-            resultSet.getString("password")
+            resultSet.getString("password"),
+            Level.valueOf(resultSet.getInt("level")),
+            resultSet.getInt("login"),
+            resultSet.getInt("recommend")
     );
     
     private JdbcTemplate jdbcTemplate;
@@ -32,10 +36,13 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public void add(final User user) {
         this.jdbcTemplate.update(
-                "INSERT INTO users(id, name, password) VALUES (?, ?, ?)",
+                "INSERT INTO users(id, name, password, level, login, recommend) VALUES (?, ?, ?, ?, ?, ?)",
                 user.id(),
                 user.name(),
-                user.password()
+                user.password(),
+                user.level().intValue(),
+                user.login(),
+                user.recommend()
         );
     }
     

@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -38,9 +39,9 @@ public class UserDaoTest {
     
     @BeforeEach
     public void setUp() {
-        this.user1 = new User("toby", "토비", "toby3");
-        this.user2 = new User("kimyh", "김영한", "kim1234");
-        this.user3 = new User("whiteship", "백기선", "white1234");
+        this.user1 = new User("toby", "토비", "toby3", Level.BASIC, 1, 0);
+        this.user2 = new User("kimyh", "김영한", "kim1234", Level.SILVER, 55, 10);
+        this.user3 = new User("whiteship", "백기선", "white1234", Level.GOLD, 100, 40);
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
@@ -163,5 +164,8 @@ public class UserDaoTest {
         assertThat(user.id()).isEqualTo(findUser.id());
         assertThat(user.name()).isEqualTo(findUser.name());
         assertThat(user.password()).isEqualTo(findUser.password());
+        assertThat(user.level()).isEqualTo(findUser.level());
+        assertThat(user.login()).isEqualTo(findUser.login());
+        assertThat(user.recommend()).isEqualTo(findUser.recommend());
     }
 }
