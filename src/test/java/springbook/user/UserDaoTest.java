@@ -64,15 +64,13 @@ public class UserDaoTest {
         final User findUser1 = this.userDao.get(this.user1.id());
     
         //테스트
-        assertThat(findUser1.name()).isEqualTo(this.user1.name());
-        assertThat(findUser1.password()).isEqualTo(this.user1.password());
+        this.checkSameUser(this.user1, findUser1);
         
         //데이터 조회
         final User findUser2 = this.userDao.get(this.user2.id());
     
         //테스트
-        assertThat(findUser2.name()).isEqualTo(this.user2.name());
-        assertThat(findUser2.password()).isEqualTo(this.user2.password());
+        this.checkSameUser(this.user2, findUser2);
     }
     
     @DisplayName("DB 테이블의 레코드 수 조회 기능 검사")
