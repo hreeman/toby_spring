@@ -27,7 +27,8 @@ class UserTest {
                     "password",
                     level,
                     0,
-                    0
+                    0,
+                    "test@mail.com"
             );
             
             // When
@@ -55,7 +56,8 @@ class UserTest {
                     "password",
                     level,
                     0,
-                    0
+                    0,
+                    "test@mail.com"
             );
         
             // When & Then

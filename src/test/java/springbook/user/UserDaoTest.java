@@ -39,9 +39,9 @@ public class UserDaoTest {
     
     @BeforeEach
     public void setUp() {
-        this.user1 = new User("toby", "토비", "toby3", Level.BASIC, 1, 0);
-        this.user2 = new User("kimyh", "김영한", "kim1234", Level.SILVER, 55, 10);
-        this.user3 = new User("whiteship", "백기선", "white1234", Level.GOLD, 100, 40);
+        this.user1 = new User("toby", "토비", "toby3", Level.BASIC, 1, 0, "toby@mail.com");
+        this.user2 = new User("kimyh", "김영한", "kim1234", Level.SILVER, 55, 10, "kimyh@mail.com");
+        this.user3 = new User("whiteship", "백기선", "white1234", Level.GOLD, 100, 40, "whiteship@mail.com");
     }
     
     @DisplayName("데이터 DB에 등록 후 조회한 결과와 등록한 결과가 일치 하는지 검사")
@@ -169,7 +169,7 @@ public class UserDaoTest {
         this.userDao.add(user2);
         
         // When
-        final User updateUser = new User(user1.id(), "오민규", "springno6", Level.GOLD, 1000, 999);
+        final User updateUser = new User(user1.id(), "오민규", "springno6", Level.GOLD, 1000, 999, "springno6@mail.com");
         
         this.userDao.update(updateUser);
         
@@ -190,5 +190,6 @@ public class UserDaoTest {
         assertThat(user.level()).isEqualTo(findUser.level());
         assertThat(user.login()).isEqualTo(findUser.login());
         assertThat(user.recommend()).isEqualTo(findUser.recommend());
+        assertThat(user.email()).isEqualTo(findUser.email());
     }
 }

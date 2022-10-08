@@ -6,8 +6,12 @@ package springbook.user.domain;
  * @param id 아이디
  * @param name 이름
  * @param password 비밀번호
+ * @param level 사용자 등급
+ * @param login 로그인 횟수
+ * @param recommend 추천받은 수
+ * @param email 이메일주소
  */
-public record User(String id, String name, String password, Level level, int login, int recommend) {
+public record User(String id, String name, String password, Level level, int login, int recommend, String email) {
     
     /**
      * 레벨 업그레이드 요청
@@ -31,7 +35,8 @@ public record User(String id, String name, String password, Level level, int log
                 this.password,
                 nextLevel,
                 this.login,
-                this.recommend
+                this.recommend,
+                this.email
         );
     }
 }

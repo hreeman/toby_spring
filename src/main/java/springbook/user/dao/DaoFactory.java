@@ -4,9 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
+import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
 
 import javax.sql.DataSource;
@@ -96,6 +99,30 @@ public class DaoFactory {
     }
     
     /**
+     * 이메일 발송 구현체
+     *
+     * @return JavaX의 mail을 추상화한 스프링의 MailSender 인스턴스
+     */
+    @Bean
+    public MailSender mailSender() {
+        final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        
+        mailSender.setHost("mail.server.com");
+    
+        return mailSender;
+    }
+    
+    /**
+     * 테스트용 테스트 스텁 메일 발송 구현체
+     *
+     * @return 테스트용 MailSender 인스턴스
+     */
+    @Bean
+    public MailSender dummyMailSender() {
+        return new DummyMailSender();
+    }
+    
+    /**
      * User Service 생성
      *
      * @return UserService 인스턴스
@@ -107,6 +134,7 @@ public class DaoFactory {
         userService.setUserDao(this.userDao());
         userService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy());
         userService.setTransactionManager(this.transactionManager());
+        userService.setMailSender(this.dummyMailSender());
         
         return userService;
     }

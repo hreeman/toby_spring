@@ -15,7 +15,6 @@ import springbook.user.domain.User;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,11 +43,11 @@ class UserServiceTest {
     @BeforeEach
     public void setUp() {
         users = List.of(
-                new User("bumjin", "박범진", "p1", Level.BASIC, this.userLevelUpgradePolicy.minLogcountForSilver() - 1, 0),
-                new User("joytouch", "강명성", "p2", Level.BASIC, this.userLevelUpgradePolicy.minLogcountForSilver(), 0),
-                new User("erwins", "신승한", "p3", Level.SILVER, 60, this.userLevelUpgradePolicy.minRecommendForGold() - 1),
-                new User("madnite1", "이상호", "p4", Level.SILVER, 60, this.userLevelUpgradePolicy.minRecommendForGold()),
-                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE)
+                new User("bumjin", "박범진", "p1", Level.BASIC, this.userLevelUpgradePolicy.minLogcountForSilver() - 1, 0, "test1@mail.com"),
+                new User("joytouch", "강명성", "p2", Level.BASIC, this.userLevelUpgradePolicy.minLogcountForSilver(), 0, "test2@mail.com"),
+                new User("erwins", "신승한", "p3", Level.SILVER, 60, this.userLevelUpgradePolicy.minRecommendForGold() - 1, "test3@mail.com"),
+                new User("madnite1", "이상호", "p4", Level.SILVER, 60, this.userLevelUpgradePolicy.minRecommendForGold(), "test4@mail.com"),
+                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE, "test5@mail.com")
         );
     }
     
@@ -97,7 +96,8 @@ class UserServiceTest {
                 user1.password(),
                 null,
                 user1.login(),
-                user1.recommend()
+                user1.recommend(),
+                user1.email()
         );
         
         // When
@@ -120,6 +120,7 @@ class UserServiceTest {
         testUserService.setUserDao(this.userDao);
         testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
         testUserService.setTransactionManager(this.transactionManager);
+        testUserService.setMailSender(new DummyMailSender());
         
         // 데이터 초기화
         this.userDao.deleteAll();
