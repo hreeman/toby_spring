@@ -53,31 +53,9 @@ public class UserService {
      * @param user 사용자 정보 객체
      */
     private void upgradeLevel(final User user) {
-        final User updateUser;
+        final User updateUser = user.upgradeLevel();
         
-        if (user.level() == Level.BASIC) {
-            updateUser = new User(
-                    user.id(),
-                    user.name(),
-                    user.password(),
-                    Level.SILVER,
-                    user.login(),
-                    user.recommend()
-            );
-        } else if (user.level() == Level.SILVER) {
-            updateUser = new User(
-                    user.id(),
-                    user.name(),
-                    user.password(),
-                    Level.GOLD,
-                    user.login(),
-                    user.recommend()
-            );
-        } else {
-            updateUser = user;
-        }
-        
-        this.userDao.add(updateUser);
+        this.userDao.update(updateUser);
     }
     
     /**
