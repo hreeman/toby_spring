@@ -3,6 +3,7 @@ package springbook.user.service;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
+import springbook.user.policy.UserLevelUpgradePolicy;
 
 import java.util.List;
 
@@ -10,13 +11,15 @@ import java.util.List;
  * 사용자 관련 비즈니스 로직을 위한 서비스
  */
 public class UserService {
-    public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
-    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
-    
     private UserDao userDao;
+    private UserLevelUpgradePolicy userLevelUpgradePolicy;
     
     public void setUserDao(final UserDao userDao) {
         this.userDao = userDao;
+    }
+    
+    public void setUserLevelUpgradePolicy(final UserLevelUpgradePolicy userLevelUpgradePolicy) {
+        this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
     
     /**
@@ -26,39 +29,12 @@ public class UserService {
         final List<User> users = this.userDao.getAll();
         
         for (final User user : users) {
-            if (this.canUpgradeLevel(user)) {
-                this.upgradeLevel(user);
+            if (this.userLevelUpgradePolicy.canUpgradeLevel(user)) {
+                final User updateUser = this.userLevelUpgradePolicy.upgradeLevel(user);
+                
+                this.userDao.update(updateUser);
             }
         }
-    }
-
-    /**
-     * 레벨 업그레이드 가능 유무 확인 메서드
-     *
-     * @param user 사용자 정보 객체
-     *
-     * @return 레벨 업그레이드 가능유무 (가능이면 true, 불가능이면 false)
-     */
-    private boolean canUpgradeLevel(final User user) {
-        final Level currentLevel = user.level();
-        
-        return switch (currentLevel) {
-            case BASIC -> (user.login() >= MIN_LOGCOUNT_FOR_SILVER);
-            case SILVER -> (user.recommend() >= MIN_RECOMMEND_FOR_GOLD);
-            case GOLD -> false;
-            default -> throw new IllegalArgumentException("Unknown Level: " + currentLevel);
-        };
-    }
-    
-    /**
-     * 실제 레벨 업그레이드 작업을 하는 메서드
-     *
-     * @param user 사용자 정보 객체
-     */
-    private void upgradeLevel(final User user) {
-        final User updateUser = user.upgradeLevel();
-        
-        this.userDao.update(updateUser);
     }
     
     /**

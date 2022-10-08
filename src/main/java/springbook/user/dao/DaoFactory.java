@@ -3,6 +3,8 @@ package springbook.user.dao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import springbook.user.policy.NormallyUserLevelUpgradePolicy;
+import springbook.user.policy.UserLevelUpgradePolicy;
 import springbook.user.service.UserService;
 
 import javax.sql.DataSource;
@@ -72,6 +74,16 @@ public class DaoFactory {
     }
     
     /**
+     * 사용자 레벨 업그레이드 정책
+     *
+     * @return 사용자 레벨 업그레이드 정책 인스턴스
+     */
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy() {
+        return new NormallyUserLevelUpgradePolicy();
+    }
+    
+    /**
      * User Service 생성
      *
      * @return UserService 인스턴스
@@ -81,6 +93,7 @@ public class DaoFactory {
         final UserService userService = new UserService();
         
         userService.setUserDao(this.userDao());
+        userService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy());
         
         return userService;
     }
