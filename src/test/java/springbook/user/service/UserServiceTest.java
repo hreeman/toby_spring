@@ -5,6 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -15,6 +19,7 @@ import springbook.user.domain.User;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +64,7 @@ class UserServiceTest {
     
     @DisplayName("사용자 레벨 업그레이드 테스트")
     @Test
+    @DirtiesContext // 컨텍스트의 DI 설정을 변경(더럽힌다)하는 테스트라는것을 알려줌
     public void upgradeLevels() throws Exception {
         // 데이터 초기화
         this.userDao.deleteAll();
@@ -67,6 +73,9 @@ class UserServiceTest {
         for (final User user : users) {
             this.userDao.add(user);
         }
+        
+        final MockMailSender mockMailSender = new MockMailSender();
+        this.userService.setMailSender(mockMailSender);
         
         // When
         this.userService.upgradeLevels();
@@ -77,6 +86,12 @@ class UserServiceTest {
         this.checkLevelUpgraded(users.get(2), false);
         this.checkLevelUpgraded(users.get(3), true);
         this.checkLevelUpgraded(users.get(4), false);
+        
+        final List<String> requests = mockMailSender.getRequests();
+        
+        assertThat(requests.size()).isEqualTo(2);
+        assertThat(requests.get(0)).isEqualTo(users.get(1).email());
+        assertThat(requests.get(1)).isEqualTo(users.get(3).email());
     }
     
     @DisplayName("add 메서드시 등급 데이터 테스트")
@@ -179,5 +194,23 @@ class UserServiceTest {
     
     static class TestUserLevelUpgradePolicyException extends RuntimeException {
     
+    }
+    
+    static class MockMailSender implements MailSender {
+        private List<String> requests = new ArrayList<>();
+    
+        public List<String> getRequests() {
+            return requests;
+        }
+    
+        @Override
+        public void send(final SimpleMailMessage mailMessage) throws MailException {
+            requests.add(mailMessage.getTo()[0]);
+        }
+    
+        @Override
+        public void send(final SimpleMailMessage... simpleMessages) throws MailException {
+        
+        }
     }
 }
