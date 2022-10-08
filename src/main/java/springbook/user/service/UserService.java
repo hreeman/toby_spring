@@ -23,44 +23,61 @@ public class UserService {
         final List<User> users = this.userDao.getAll();
         
         for (final User user : users) {
-            final boolean changed; // 레벨 변화 체크
-            final User updateUser;
-            
-            if (user.level() == Level.GOLD) { // GOLD 레벨은 변경이 발생하지 않음
-                continue;
-            }
-            
-            if ((user.level() == Level.BASIC) && (user.login() >= 50)) {
-                updateUser = new User(
-                        user.id(),
-                        user.name(),
-                        user.password(),
-                        Level.SILVER,
-                        user.login(),
-                        user.recommend()
-                );
-                
-                changed = true;
-            } else if ((user.level() == Level.SILVER) && (user.recommend() >= 30)) {
-                updateUser = new User(
-                        user.id(),
-                        user.name(),
-                        user.password(),
-                        Level.GOLD,
-                        user.login(),
-                        user.recommend()
-                );
-                
-                changed = true;
-            } else {
-                updateUser = user;
-                changed = false;
-            }
-            
-            if (changed) {
-                this.userDao.update(updateUser);
+            if (this.canUpgradeLevel(user)) {
+                this.upgradeLevel(user);
             }
         }
+    }
+
+    /**
+     * 레벨 업그레이드 가능 유무 확인 메서드
+     *
+     * @param user 사용자 정보 객체
+     *
+     * @return 레벨 업그레이드 가능유무 (가능이면 true, 불가능이면 false)
+     */
+    private boolean canUpgradeLevel(final User user) {
+        final Level currentLevel = user.level();
+        
+        return switch (currentLevel) {
+            case BASIC -> (user.login() >= 50);
+            case SILVER -> (user.recommend() >= 30);
+            case GOLD -> false;
+            default -> throw new IllegalArgumentException("Unknown Level: " + currentLevel);
+        };
+    }
+    
+    /**
+     * 실제 레벨 업그레이드 작업을 하는 메서드
+     *
+     * @param user 사용자 정보 객체
+     */
+    private void upgradeLevel(final User user) {
+        final User updateUser;
+        
+        if (user.level() == Level.BASIC) {
+            updateUser = new User(
+                    user.id(),
+                    user.name(),
+                    user.password(),
+                    Level.SILVER,
+                    user.login(),
+                    user.recommend()
+            );
+        } else if (user.level() == Level.SILVER) {
+            updateUser = new User(
+                    user.id(),
+                    user.name(),
+                    user.password(),
+                    Level.GOLD,
+                    user.login(),
+                    user.recommend()
+            );
+        } else {
+            updateUser = user;
+        }
+        
+        this.userDao.add(updateUser);
     }
     
     /**
