@@ -158,6 +158,26 @@ public class UserDaoTest {
         }
     }
     
+    @DisplayName("사용자 정보 수정 테스트")
+    @Test
+    public void update() {
+        // 데이터 초기화
+        this.userDao.deleteAll();
+        
+        // Given
+        this.userDao.add(user1);
+        
+        // When
+        final User updateUser = new User(user1.id(), "오민규", "springno6", Level.GOLD, 1000, 999);
+        
+        this.userDao.update(updateUser);
+        
+        // Then
+        final User updateAfterUser = this.userDao.get(updateUser.id());
+        
+        this.checkSameUser(updateUser, updateAfterUser);
+    }
+    
     private void checkSameUser(final User user, final User findUser) {
         assertThat(user.id()).isEqualTo(findUser.id());
         assertThat(user.name()).isEqualTo(findUser.name());

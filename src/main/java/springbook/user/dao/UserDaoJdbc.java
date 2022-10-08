@@ -83,6 +83,19 @@ public class UserDaoJdbc implements UserDao {
         return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
     }
     
+    @Override
+    public void update(final User updateUser) {
+        this.jdbcTemplate.update(
+                "UPDATE users SET name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?",
+                updateUser.name(),
+                updateUser.password(),
+                updateUser.level().intValue(),
+                updateUser.login(),
+                updateUser.recommend(),
+                updateUser.id()
+        );
+    }
+    
     /**
      * DB 사용자 정보 전체 목록 조회
      *
