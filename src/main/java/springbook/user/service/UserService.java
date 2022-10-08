@@ -10,6 +10,9 @@ import java.util.List;
  * 사용자 관련 비즈니스 로직을 위한 서비스
  */
 public class UserService {
+    public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
+    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+    
     private UserDao userDao;
     
     public void setUserDao(final UserDao userDao) {
@@ -40,8 +43,8 @@ public class UserService {
         final Level currentLevel = user.level();
         
         return switch (currentLevel) {
-            case BASIC -> (user.login() >= 50);
-            case SILVER -> (user.recommend() >= 30);
+            case BASIC -> (user.login() >= MIN_LOGCOUNT_FOR_SILVER);
+            case SILVER -> (user.recommend() >= MIN_RECOMMEND_FOR_GOLD);
             case GOLD -> false;
             default -> throw new IllegalArgumentException("Unknown Level: " + currentLevel);
         };
