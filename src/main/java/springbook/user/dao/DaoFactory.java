@@ -2,7 +2,9 @@ package springbook.user.dao;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 import springbook.user.service.UserService;
@@ -84,6 +86,16 @@ public class DaoFactory {
     }
     
     /**
+     * 추상화된 트랜잭션 매니저
+     *
+     * @return 트랜잭션 매니저 인스턴스
+     */
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(this.dataSource());
+    }
+    
+    /**
      * User Service 생성
      *
      * @return UserService 인스턴스
@@ -94,7 +106,7 @@ public class DaoFactory {
         
         userService.setUserDao(this.userDao());
         userService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy());
-        userService.setDataSource(this.dataSource());
+        userService.setTransactionManager(this.transactionManager());
         
         return userService;
     }

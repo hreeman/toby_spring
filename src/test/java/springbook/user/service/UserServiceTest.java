@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -36,7 +37,7 @@ class UserServiceTest {
     UserLevelUpgradePolicy userLevelUpgradePolicy;
     
     @Autowired
-    DataSource dataSource;
+    PlatformTransactionManager transactionManager;
     
     List<User> users; //테스트 픽스처
     
@@ -118,7 +119,7 @@ class UserServiceTest {
         final UserService testUserService = new UserService();
         testUserService.setUserDao(this.userDao);
         testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
-        testUserService.setDataSource(this.dataSource);
+        testUserService.setTransactionManager(this.transactionManager);
         
         // 데이터 초기화
         this.userDao.deleteAll();
