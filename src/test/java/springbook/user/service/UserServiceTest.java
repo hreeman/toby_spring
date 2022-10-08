@@ -62,11 +62,11 @@ class UserServiceTest {
         this.userService.upgradeLevels();
         
         // Then
-        this.checkLevel(users.get(0), Level.BASIC);
-        this.checkLevel(users.get(1), Level.SILVER);
-        this.checkLevel(users.get(2), Level.SILVER);
-        this.checkLevel(users.get(3), Level.GOLD);
-        this.checkLevel(users.get(4), Level.GOLD);
+        this.checkLevelUpgraded(users.get(0), false);
+        this.checkLevelUpgraded(users.get(1), true);
+        this.checkLevelUpgraded(users.get(2), false);
+        this.checkLevelUpgraded(users.get(3), true);
+        this.checkLevelUpgraded(users.get(4), false);
     }
     
     @DisplayName("add 메서드시 등급 데이터 테스트")
@@ -101,9 +101,20 @@ class UserServiceTest {
         assertThat(userWithoutLevelRead.level()).isEqualTo(Level.BASIC);
     }
     
+    @Deprecated
     private void checkLevel(final User user, final Level expectedLevel) {
         final User userUpdate = this.userDao.get(user.id());
         
         assertThat(userUpdate.level()).isEqualTo(expectedLevel);
+    }
+    
+    private void checkLevelUpgraded(final User user, final boolean upgraded) {
+        final User userUpdate = this.userDao.get(user.id());
+        
+        if (upgraded) {
+            assertThat(userUpdate.level()).isEqualTo(user.level().nextLevel());
+        } else {
+            assertThat(userUpdate.level()).isEqualTo(user.level());
+        }
     }
 }
