@@ -94,6 +94,7 @@ public class DaoFactory {
         
         userService.setUserDao(this.userDao());
         userService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy());
+        userService.setDataSource(this.dataSource());
         
         return userService;
     }

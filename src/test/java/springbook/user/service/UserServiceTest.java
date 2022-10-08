@@ -11,11 +11,14 @@ import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
+import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * User Service 테스트
@@ -31,6 +34,9 @@ class UserServiceTest {
     
     @Autowired
     UserLevelUpgradePolicy userLevelUpgradePolicy;
+    
+    @Autowired
+    DataSource dataSource;
     
     List<User> users; //테스트 픽스처
     
@@ -53,7 +59,7 @@ class UserServiceTest {
     
     @DisplayName("사용자 레벨 업그레이드 테스트")
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws Exception {
         // 데이터 초기화
         this.userDao.deleteAll();
         
@@ -105,6 +111,32 @@ class UserServiceTest {
         assertThat(userWithoutLevelRead.level()).isEqualTo(Level.BASIC);
     }
     
+    @DisplayName("예외 발생시 작업 취소 여부 테스트")
+    @Test
+    public void upgradeAllOrNothing() throws Exception {
+        // 레벨 업그레이드 정책을 수동으로 DI
+        final UserService testUserService = new UserService();
+        testUserService.setUserDao(this.userDao);
+        testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
+        testUserService.setDataSource(this.dataSource);
+        
+        // 데이터 초기화
+        this.userDao.deleteAll();
+        
+        for (final User user : users) {
+            userDao.add(user);
+        }
+        
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserLevelUpgradePolicyException expected");
+        } catch (final TestUserLevelUpgradePolicyException e) {
+        
+        }
+        
+        checkLevelUpgraded(users.get(1), false);
+    }
+    
     @Deprecated
     private void checkLevel(final User user, final Level expectedLevel) {
         final User userUpdate = this.userDao.get(user.id());
@@ -120,5 +152,30 @@ class UserServiceTest {
         } else {
             assertThat(userUpdate.level()).isEqualTo(user.level());
         }
+    }
+
+    /**
+     * 레벨 업그레이드 정책을 테스트하기 위한 대역 클래스
+     */
+    static class TestUserLevelUpgradePolicy extends NormallyUserLevelUpgradePolicy {
+        private String id;
+    
+        //예외를 발생시킬 User 오브젝트의 id 지정
+        public TestUserLevelUpgradePolicy(final String id) {
+            this.id = id;
+        }
+    
+        @Override
+        public User upgradeLevel(final User user) {
+            if (user.id().equals(this.id)) {
+                throw new TestUserLevelUpgradePolicyException();
+            }
+            
+            return super.upgradeLevel(user);
+        }
+    }
+    
+    static class TestUserLevelUpgradePolicyException extends RuntimeException {
+    
     }
 }
