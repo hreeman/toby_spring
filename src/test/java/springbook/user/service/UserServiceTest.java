@@ -69,6 +69,38 @@ class UserServiceTest {
         this.checkLevel(users.get(4), Level.GOLD);
     }
     
+    @DisplayName("add 메서드시 등급 데이터 테스트")
+    @Test
+    public void add() {
+        // 데이터 초기화
+        this.userDao.deleteAll();
+        
+        // Given
+        final User userWithLevel = users.get(4); //GOLD 레벨이 이미 지정된 User라면 레벨을 초기화 하지 않음
+        
+        // 레벨이 비어있는 사용자, 로직에 따라 등록 중 BASIC 레벨이 설정되어야 함
+        final User user1 = users.get(0);
+        final User userWithoutLevel = new User(
+                user1.id(),
+                user1.name(),
+                user1.password(),
+                null,
+                user1.login(),
+                user1.recommend()
+        );
+        
+        // When
+        this.userService.add(userWithLevel);
+        this.userService.add(userWithoutLevel);
+        
+        // Then
+        final User userWithLevelRead = this.userDao.get(userWithLevel.id());
+        final User userWithoutLevelRead = this.userDao.get(userWithoutLevel.id());
+        
+        assertThat(userWithLevelRead.level()).isEqualTo(userWithLevel.level());
+        assertThat(userWithoutLevelRead.level()).isEqualTo(Level.BASIC);
+    }
+    
     private void checkLevel(final User user, final Level expectedLevel) {
         final User userUpdate = this.userDao.get(user.id());
         

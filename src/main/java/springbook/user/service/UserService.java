@@ -62,4 +62,28 @@ public class UserService {
             }
         }
     }
+    
+    /**
+     * 사용자 정보 등록 비즈니스 로직
+     *
+     * @param user 사용자 정보 객체
+     */
+    public void add(final User user) {
+        final User addUser;
+        
+        if (user.level() == null) {
+            addUser = new User(
+                    user.id(),
+                    user.name(),
+                    user.password(),
+                    Level.BASIC,
+                    user.login(),
+                    user.recommend()
+            );
+        } else {
+            addUser = user;
+        }
+        
+        this.userDao.add(addUser);
+    }
 }
