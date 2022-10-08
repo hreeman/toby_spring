@@ -9,9 +9,12 @@ import javax.sql.DataSource;
 import java.util.List;
 
 /**
- * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO
+ * JDBC를 이용하여 사용자 정보를 DB에 넣고 관리할 DAO 구현체
  */
 public class UserDaoJdbc implements UserDao {
+    /**
+     * JDBC 결과 ResultSet을 User 객체로 매핑해주는 매퍼
+     */
     private final RowMapper<User> userRowMapper = (resultSet, rowNumber) -> new User(
             resultSet.getString("id"),
             resultSet.getString("name"),
@@ -27,12 +30,6 @@ public class UserDaoJdbc implements UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
     
-    /**
-     * 사용자 정보 DB 등록
-     *
-     * @param user 사용자 정보가 담긴 User 객체
-     *
-     */
     @Override
     public void add(final User user) {
         this.jdbcTemplate.update(
@@ -46,14 +43,6 @@ public class UserDaoJdbc implements UserDao {
         );
     }
     
-    /**
-     * id를 이용하여 사용자 정보를 DB에서 조회
-     *
-     * @param id 아이디
-     *
-     * @return 사용자 정보 User 객체
-     *
-     */
     @Override
     public User get(final String id) {
         return this.jdbcTemplate.queryForObject(
@@ -63,21 +52,11 @@ public class UserDaoJdbc implements UserDao {
         );
     }
     
-    /**
-     * DB 사용자 정보 테이블 데이터 전체 삭제
-     *
-     */
     @Override
     public void deleteAll() {
         this.jdbcTemplate.update("DELETE FROM users");
     }
     
-    /**
-     * DB 사용자 정보 테이블 레코드 갯수 조회
-     *
-     * @return 조회된 사용자 정보 전체 테이블 레코드 수
-     *
-     */
     @Override
     public int getCount() {
         return this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
@@ -96,17 +75,11 @@ public class UserDaoJdbc implements UserDao {
         );
     }
     
-    /**
-     * DB 사용자 정보 전체 목록 조회
-     *
-     * @return 사용자 정보 전체 목록
-     */
     @Override
     public List<User> getAll() {
         return this.jdbcTemplate.query(
                 "SELECT * FROM users ORDER BY id",
                 this.userRowMapper
         );
-        
     }
 }

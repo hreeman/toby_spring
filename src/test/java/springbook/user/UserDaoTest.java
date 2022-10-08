@@ -166,6 +166,7 @@ public class UserDaoTest {
         
         // Given
         this.userDao.add(user1);
+        this.userDao.add(user2);
         
         // When
         final User updateUser = new User(user1.id(), "오민규", "springno6", Level.GOLD, 1000, 999);
@@ -176,6 +177,10 @@ public class UserDaoTest {
         final User updateAfterUser = this.userDao.get(updateUser.id());
         
         this.checkSameUser(updateUser, updateAfterUser);
+        
+        final User selectedUser2 = this.userDao.get(user2.id());
+        
+        this.checkSameUser(user2, selectedUser2);
     }
     
     private void checkSameUser(final User user, final User findUser) {
