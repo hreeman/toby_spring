@@ -46,25 +46,36 @@ public class UserService {
         final TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         
         try {
-            final List<User> users = this.userDao.getAll();
-            
-            for (final User user : users) {
-                if (this.userLevelUpgradePolicy.canUpgradeLevel(user)) {
-                    final User updateUser = this.userLevelUpgradePolicy.upgradeLevel(user);
-                    
-                    // 레벨 업그레이드
-                    this.userDao.update(updateUser);
-                    
-                    // 이메일 전송
-                    this.sendUpgradeEMail(updateUser);
-                }
-            }
-            
+            this.upgradeLevelsInternal();
+    
             this.transactionManager.commit(status);
         } catch (final Exception e) {
             this.transactionManager.rollback(status);
             
             throw e;
+        }
+    }
+    
+    /**
+     * 사용자 레벨 업그레이드 메서드의 실제 비즈니스 로직
+     *
+     * <pre>
+     * 트랜잭션과 관련된 부분이 없는 실제 비즈니스로직
+     * </pre>
+     */
+    private void upgradeLevelsInternal() {
+        final List<User> users = this.userDao.getAll();
+        
+        for (final User user : users) {
+            if (this.userLevelUpgradePolicy.canUpgradeLevel(user)) {
+                final User updateUser = this.userLevelUpgradePolicy.upgradeLevel(user);
+                
+                // 레벨 업그레이드
+                this.userDao.update(updateUser);
+                
+                // 이메일 전송
+                this.sendUpgradeEMail(updateUser);
+            }
         }
     }
     
