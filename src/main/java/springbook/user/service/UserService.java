@@ -1,14 +1,15 @@
 package springbook.user.service;
 
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 import springbook.user.policy.UserLevelUpgradePolicy;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -36,12 +37,8 @@ public class UserService {
      * 사용자 레벨 업그레이드 메서드
      */
     public void upgradeLevels() throws Exception {
-        // 트랜잭션 동기화 관리자를 히용하여 동기화 작업 초기화
-        TransactionSynchronizationManager.initSynchronization();
-        
-        // DB 커넥션 생성 및 트랜잭션 시작
-        final Connection connection = DataSourceUtils.getConnection(this.dataSource);
-        connection.setAutoCommit(false);
+        final PlatformTransactionManager transactionManager = new DataSourceTransactionManager(this.dataSource);
+        final TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         
         try {
             final List<User> users = this.userDao.getAll();
@@ -54,18 +51,11 @@ public class UserService {
                 }
             }
             
-            connection.commit();
+            transactionManager.commit(status);
         } catch (final Exception e) {
-            connection.rollback();
+            transactionManager.rollback(status);
             
             throw e;
-        } finally {
-            // 스프링 유틸리티 메서드를 이용하여 DB 커넥션을 안전하게 닫기
-            DataSourceUtils.releaseConnection(connection, dataSource);
-            
-            // 동기화 작업 종료 및 정리
-            TransactionSynchronizationManager.unbindResource(this.dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
         }
     }
     
