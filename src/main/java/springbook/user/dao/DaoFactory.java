@@ -3,6 +3,7 @@ package springbook.user.dao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import springbook.user.service.UserService;
 
 import javax.sql.DataSource;
 
@@ -68,5 +69,19 @@ public class DaoFactory {
         dataSource.setPassword("toby");
         
         return dataSource;
+    }
+    
+    /**
+     * User Service 생성
+     *
+     * @return UserService 인스턴스
+     */
+    @Bean
+    public UserService userService() {
+        final UserService userService = new UserService();
+        
+        userService.setUserDao(this.userDao());
+        
+        return userService;
     }
 }
