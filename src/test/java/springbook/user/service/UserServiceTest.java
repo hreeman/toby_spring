@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -148,9 +147,7 @@ class UserServiceTest {
         // 데이터 초기화
         this.userDao.deleteAll();
         
-        for (final User user : users) {
-            userDao.add(user);
-        }
+        this.users.forEach(this.userDao::add);
         
         try {
             testUserService.upgradeLevels();
