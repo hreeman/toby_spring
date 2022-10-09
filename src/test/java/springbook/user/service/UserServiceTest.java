@@ -38,6 +38,9 @@ class UserServiceTest {
     UserService userService;
     
     @Autowired
+    UserServiceImpl userServiceImpl;
+    
+    @Autowired
     UserLevelUpgradePolicy userLevelUpgradePolicy;
     
     @Autowired
@@ -75,7 +78,7 @@ class UserServiceTest {
         }
         
         final MockMailSender mockMailSender = new MockMailSender();
-        this.userService.setMailSender(mockMailSender);
+        this.userServiceImpl.setMailSender(mockMailSender);
         
         // When
         this.userService.upgradeLevels();
@@ -130,12 +133,15 @@ class UserServiceTest {
     @DisplayName("예외 발생시 작업 취소 여부 테스트")
     @Test
     public void upgradeAllOrNothing() throws Exception {
-        // 레벨 업그레이드 정책을 수동으로 DI
-        final UserService testUserService = new UserService();
-        testUserService.setUserDao(this.userDao);
-        testUserService.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
+        //수동으로 DI
+        final UserServiceImpl userServiceImpl = new UserServiceImpl();
+        userServiceImpl.setUserDao(this.userDao);
+        userServiceImpl.setMailSender(new DummyMailSender());
+        userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
+        
+        final UserServiceTx testUserService = new UserServiceTx();
+        testUserService.setUserService(userServiceImpl);
         testUserService.setTransactionManager(this.transactionManager);
-        testUserService.setMailSender(new DummyMailSender());
         
         // 데이터 초기화
         this.userDao.deleteAll();

@@ -1,122 +1,17 @@
 package springbook.user.service;
 
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import springbook.user.dao.UserDao;
-import springbook.user.domain.Level;
 import springbook.user.domain.User;
-import springbook.user.policy.UserLevelUpgradePolicy;
 
-import java.util.List;
-
-/**
- * 사용자 관련 비즈니스 로직을 위한 서비스
- */
-public class UserService {
-    private UserDao userDao;
-    private UserLevelUpgradePolicy userLevelUpgradePolicy;
-    
-    private PlatformTransactionManager transactionManager;
-    private MailSender mailSender;
-    
-    public void setUserDao(final UserDao userDao) {
-        this.userDao = userDao;
-    }
-    
-    public void setUserLevelUpgradePolicy(final UserLevelUpgradePolicy userLevelUpgradePolicy) {
-        this.userLevelUpgradePolicy = userLevelUpgradePolicy;
-    }
-    
-    public void setTransactionManager(final PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-    
-    public void setMailSender(final MailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-    
-    /**
-     * 사용자 레벨 업그레이드 메서드
-     */
-    public void upgradeLevels() throws Exception {
-        final TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
-        
-        try {
-            this.upgradeLevelsInternal();
-    
-            this.transactionManager.commit(status);
-        } catch (final Exception e) {
-            this.transactionManager.rollback(status);
-            
-            throw e;
-        }
-    }
-    
-    /**
-     * 사용자 레벨 업그레이드 메서드의 실제 비즈니스 로직
-     *
-     * <pre>
-     * 트랜잭션과 관련된 부분이 없는 실제 비즈니스로직
-     * </pre>
-     */
-    private void upgradeLevelsInternal() {
-        final List<User> users = this.userDao.getAll();
-        
-        for (final User user : users) {
-            if (this.userLevelUpgradePolicy.canUpgradeLevel(user)) {
-                final User updateUser = this.userLevelUpgradePolicy.upgradeLevel(user);
-                
-                // 레벨 업그레이드
-                this.userDao.update(updateUser);
-                
-                // 이메일 전송
-                this.sendUpgradeEMail(updateUser);
-            }
-        }
-    }
-    
+public interface UserService {
     /**
      * 사용자 정보 등록 비즈니스 로직
      *
      * @param user 사용자 정보 객체
      */
-    public void add(final User user) {
-        final User addUser;
-        
-        if (user.level() == null) {
-            addUser = new User(
-                    user.id(),
-                    user.name(),
-                    user.password(),
-                    Level.BASIC,
-                    user.login(),
-                    user.recommend(),
-                    user.email()
-            );
-        } else {
-            addUser = user;
-        }
-        
-        this.userDao.add(addUser);
-    }
+    void add(final User user);
     
     /**
-     * 사용자 레벨 업그레이드시 메일 발송
-     *
-     * @param user 사용자 정보 객체
+     * 사용자 레벨 업그레이드 메서드
      */
-    private void sendUpgradeEMail(final User user) {
-        final SimpleMailMessage mailMessage = new SimpleMailMessage();
-        
-        mailMessage.setTo(user.email());
-        mailMessage.setFrom("useradmin@ksug.org");
-        mailMessage.setSubject("Upgrade 안내");
-        mailMessage.setText("사용자님의 등급이 " + user.level().name() + "으로 변경 되었습니다.");
-        
-        this.mailSender.send(mailMessage);
-    }
+    void upgradeLevels();
 }

@@ -11,6 +11,8 @@ import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
+import springbook.user.service.UserServiceImpl;
+import springbook.user.service.UserServiceTx;
 
 import javax.sql.DataSource;
 
@@ -129,11 +131,20 @@ public class DaoFactory {
      */
     @Bean
     public UserService userService() {
-        final UserService userService = new UserService();
+        final UserServiceTx userService = new UserServiceTx();
+        
+        userService.setTransactionManager(this.transactionManager());
+        userService.setUserService(this.userServiceImpl());
+        
+        return userService;
+    }
+    
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        final UserServiceImpl userService = new UserServiceImpl();
         
         userService.setUserDao(this.userDao());
         userService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy());
-        userService.setTransactionManager(this.transactionManager());
         userService.setMailSender(this.dummyMailSender());
         
         return userService;
