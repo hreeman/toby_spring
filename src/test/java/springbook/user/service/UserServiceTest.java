@@ -67,34 +67,36 @@ class UserServiceTest {
     
     @DisplayName("사용자 레벨 업그레이드 테스트")
     @Test
-    @DirtiesContext // 컨텍스트의 DI 설정을 변경(더럽힌다)하는 테스트라는것을 알려줌
-    public void upgradeLevels() throws Exception {
-        // 데이터 초기화
-        this.userDao.deleteAll();
-        
+    public void upgradeLevels() {
         // Given
-        for (final User user : users) {
-            this.userDao.add(user);
-        }
+        final MockUserDao mockUserDao = new MockUserDao(this.users);
         
+        final UserServiceImpl userServiceImpl = new UserServiceImpl();
         final MockMailSender mockMailSender = new MockMailSender();
-        this.userServiceImpl.setMailSender(mockMailSender);
+        
+        userServiceImpl.setUserDao(mockUserDao);
+        userServiceImpl.setMailSender(mockMailSender);
+        userServiceImpl.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy);
         
         // When
-        this.userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
         
         // Then
-        this.checkLevelUpgraded(users.get(0), false);
-        this.checkLevelUpgraded(users.get(1), true);
-        this.checkLevelUpgraded(users.get(2), false);
-        this.checkLevelUpgraded(users.get(3), true);
-        this.checkLevelUpgraded(users.get(4), false);
+        final List<User> updated = mockUserDao.getUpdated();
+        assertThat(updated.size()).isEqualTo(2);
+        this.checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+        this.checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
         
         final List<String> requests = mockMailSender.getRequests();
         
         assertThat(requests.size()).isEqualTo(2);
         assertThat(requests.get(0)).isEqualTo(users.get(1).email());
         assertThat(requests.get(1)).isEqualTo(users.get(3).email());
+    }
+    
+    private void checkUserAndLevel(final User updated, final String expectedId, final Level expectedLevel) {
+        assertThat(updated.id()).isEqualTo(expectedId);
+        assertThat(updated.level()).isEqualTo(expectedLevel);
     }
     
     @DisplayName("add 메서드시 등급 데이터 테스트")
@@ -217,6 +219,49 @@ class UserServiceTest {
         @Override
         public void send(final SimpleMailMessage... simpleMessages) throws MailException {
         
+        }
+    }
+    
+    static class MockUserDao implements UserDao {
+        private List<User> users;
+        private List<User> updated = new ArrayList<>();
+    
+        public MockUserDao(final List<User> users) {
+            this.users = users;
+        }
+    
+        public List<User> getUpdated() {
+            return updated;
+        }
+    
+        @Override
+        public void update(final User updateUser) {
+            this.updated.add(updateUser);
+        }
+    
+        @Override
+        public List<User> getAll() {
+            return this.users;
+        }
+    
+        @Override
+        public void add(final User user) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public User get(final String id) {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public void deleteAll() {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public int getCount() {
+            throw new UnsupportedOperationException();
         }
     }
 }
