@@ -20,6 +20,7 @@ import springbook.user.policy.UserLevelUpgradePolicy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -60,13 +61,13 @@ class UserServiceTest {
     
     @DisplayName("빈 주입 테스트")
     @Test
-    public void bean() {
+    void bean() {
         assertThat(this.userService).isNotNull();
     }
     
     @DisplayName("사용자 레벨 업그레이드 테스트")
     @Test
-    public void upgradeLevels() {
+    void upgradeLevels() {
         // Given
         final MockUserDao mockUserDao = new MockUserDao(this.users);
         
@@ -82,15 +83,15 @@ class UserServiceTest {
         
         // Then
         final List<User> updated = mockUserDao.getUpdated();
-        assertThat(updated.size()).isEqualTo(2);
+        assertThat(updated).hasSize(2);
         this.checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
         this.checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
         
         final List<String> requests = mockMailSender.getRequests();
         
-        assertThat(requests.size()).isEqualTo(2);
-        assertThat(requests.get(0)).isEqualTo(users.get(1).email());
-        assertThat(requests.get(1)).isEqualTo(users.get(3).email());
+        assertThat(requests).hasSize(2);
+        assertThat(requests.get(0)).isEqualTo(this.users.get(1).email());
+        assertThat(requests.get(1)).isEqualTo(this.users.get(3).email());
     }
     
     private void checkUserAndLevel(final User updated, final String expectedId, final Level expectedLevel) {
@@ -100,15 +101,15 @@ class UserServiceTest {
     
     @DisplayName("add 메서드시 등급 데이터 테스트")
     @Test
-    public void add() {
+    void add() {
         // 데이터 초기화
         this.userDao.deleteAll();
         
         // Given
-        final User userWithLevel = users.get(4); //GOLD 레벨이 이미 지정된 User라면 레벨을 초기화 하지 않음
+        final User userWithLevel = this.users.get(4); //GOLD 레벨이 이미 지정된 User라면 레벨을 초기화 하지 않음
         
         // 레벨이 비어있는 사용자, 로직에 따라 등록 중 BASIC 레벨이 설정되어야 함
-        final User user1 = users.get(0);
+        final User user1 = this.users.get(0);
         final User userWithoutLevel = new User(
                 user1.id(),
                 user1.name(),
@@ -133,12 +134,12 @@ class UserServiceTest {
     
     @DisplayName("예외 발생시 작업 취소 여부 테스트")
     @Test
-    public void upgradeAllOrNothing() throws Exception {
+    void upgradeAllOrNothing() {
         //수동으로 DI
         final UserServiceImpl userServiceImpl = new UserServiceImpl();
         userServiceImpl.setUserDao(this.userDao);
         userServiceImpl.setMailSender(new DummyMailSender());
-        userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(users.get(3).id()));
+        userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(this.users.get(3).id()));
         
         final UserServiceTx testUserService = new UserServiceTx();
         testUserService.setUserService(userServiceImpl);
@@ -158,14 +159,7 @@ class UserServiceTest {
         
         checkLevelUpgraded(users.get(1), false);
     }
-    
-    @Deprecated
-    private void checkLevel(final User user, final Level expectedLevel) {
-        final User userUpdate = this.userDao.get(user.id());
-        
-        assertThat(userUpdate.level()).isEqualTo(expectedLevel);
-    }
-    
+
     private void checkLevelUpgraded(final User user, final boolean upgraded) {
         final User userUpdate = this.userDao.get(user.id());
         
@@ -205,12 +199,12 @@ class UserServiceTest {
         private List<String> requests = new ArrayList<>();
     
         public List<String> getRequests() {
-            return requests;
+            return this.requests;
         }
     
         @Override
         public void send(final SimpleMailMessage mailMessage) throws MailException {
-            requests.add(mailMessage.getTo()[0]);
+            this.requests.add(Objects.requireNonNull(mailMessage.getTo())[0]);
         }
     
         @Override
@@ -228,7 +222,7 @@ class UserServiceTest {
         }
     
         public List<User> getUpdated() {
-            return updated;
+            return this.updated;
         }
     
         @Override
