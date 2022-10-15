@@ -9,19 +9,19 @@ import springbook.user.domain.User;
 public class NormallyUserLevelUpgradePolicy implements UserLevelUpgradePolicy {
     @Override
     public boolean canUpgradeLevel(final User user) {
-        final Level currentLevel = user.level();
+        final Level currentLevel = user.getLevel();
     
         return switch (currentLevel) {
-            case BASIC -> (user.login() >= this.minLogcountForSilver());
-            case SILVER -> (user.recommend() >= this.minRecommendForGold());
+            case BASIC -> (user.getLogin() >= this.minLogcountForSilver());
+            case SILVER -> (user.getRecommend() >= this.minRecommendForGold());
             case GOLD -> false;
             default -> throw new IllegalArgumentException("Unknown Level: " + currentLevel);
         };
     }
     
     @Override
-    public User upgradeLevel(final User user) {
-        return user.upgradeLevel();
+    public void upgradeLevel(final User user) {
+        user.upgradeLevel();
     }
     
     @Override

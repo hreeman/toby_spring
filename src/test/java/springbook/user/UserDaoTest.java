@@ -61,13 +61,13 @@ public class UserDaoTest {
         assertThat(this.userDao.getCount()).isEqualTo(2);
         
         //데이터 조회
-        final User findUser1 = this.userDao.get(this.user1.id());
+        final User findUser1 = this.userDao.get(this.user1.getId());
     
         //테스트
         this.checkSameUser(this.user1, findUser1);
         
         //데이터 조회
-        final User findUser2 = this.userDao.get(this.user2.id());
+        final User findUser2 = this.userDao.get(this.user2.getId());
     
         //테스트
         this.checkSameUser(this.user2, findUser2);
@@ -169,27 +169,27 @@ public class UserDaoTest {
         this.userDao.add(user2);
         
         // When
-        final User updateUser = new User(user1.id(), "오민규", "springno6", Level.GOLD, 1000, 999, "springno6@mail.com");
+        final User updateUser = new User(user1.getId(), "오민규", "springno6", Level.GOLD, 1000, 999, "springno6@mail.com");
         
         this.userDao.update(updateUser);
         
         // Then
-        final User updateAfterUser = this.userDao.get(updateUser.id());
+        final User updateAfterUser = this.userDao.get(updateUser.getId());
         
         this.checkSameUser(updateUser, updateAfterUser);
         
-        final User selectedUser2 = this.userDao.get(user2.id());
+        final User selectedUser2 = this.userDao.get(user2.getId());
         
         this.checkSameUser(user2, selectedUser2);
     }
     
     private void checkSameUser(final User user, final User findUser) {
-        assertThat(user.id()).isEqualTo(findUser.id());
-        assertThat(user.name()).isEqualTo(findUser.name());
-        assertThat(user.password()).isEqualTo(findUser.password());
-        assertThat(user.level()).isEqualTo(findUser.level());
-        assertThat(user.login()).isEqualTo(findUser.login());
-        assertThat(user.recommend()).isEqualTo(findUser.recommend());
-        assertThat(user.email()).isEqualTo(findUser.email());
+        assertThat(user.getId()).isEqualTo(findUser.getId());
+        assertThat(user.getName()).isEqualTo(findUser.getName());
+        assertThat(user.getPassword()).isEqualTo(findUser.getPassword());
+        assertThat(user.getLevel()).isEqualTo(findUser.getLevel());
+        assertThat(user.getLogin()).isEqualTo(findUser.getLogin());
+        assertThat(user.getRecommend()).isEqualTo(findUser.getRecommend());
+        assertThat(user.getEmail()).isEqualTo(findUser.getEmail());
     }
 }

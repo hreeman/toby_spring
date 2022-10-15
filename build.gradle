@@ -17,11 +17,12 @@ dependencies {
     implementation 'javax.mail:mail:1.4.7'
     implementation 'javax.activation:activation:1.1.1'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
     testImplementation 'org.assertj:assertj-core:3.23.1'
     testImplementation 'org.springframework:spring-test:5.3.22'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.8.0'
 
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
 }
 
 test {

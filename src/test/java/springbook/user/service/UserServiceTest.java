@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -24,11 +26,16 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * User Service 테스트
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = DaoFactory.class)
 class UserServiceTest {
     @Autowired
@@ -90,13 +97,13 @@ class UserServiceTest {
         final List<String> requests = mockMailSender.getRequests();
         
         assertThat(requests).hasSize(2);
-        assertThat(requests.get(0)).isEqualTo(this.users.get(1).email());
-        assertThat(requests.get(1)).isEqualTo(this.users.get(3).email());
+        assertThat(requests.get(0)).isEqualTo(this.users.get(1).getEmail());
+        assertThat(requests.get(1)).isEqualTo(this.users.get(3).getEmail());
     }
     
     private void checkUserAndLevel(final User updated, final String expectedId, final Level expectedLevel) {
-        assertThat(updated.id()).isEqualTo(expectedId);
-        assertThat(updated.level()).isEqualTo(expectedLevel);
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
     
     @DisplayName("add 메서드시 등급 데이터 테스트")
@@ -111,13 +118,13 @@ class UserServiceTest {
         // 레벨이 비어있는 사용자, 로직에 따라 등록 중 BASIC 레벨이 설정되어야 함
         final User user1 = this.users.get(0);
         final User userWithoutLevel = new User(
-                user1.id(),
-                user1.name(),
-                user1.password(),
+                user1.getId(),
+                user1.getName(),
+                user1.getPassword(),
                 null,
-                user1.login(),
-                user1.recommend(),
-                user1.email()
+                user1.getLogin(),
+                user1.getRecommend(),
+                user1.getEmail()
         );
         
         // When
@@ -125,11 +132,11 @@ class UserServiceTest {
         this.userService.add(userWithoutLevel);
         
         // Then
-        final User userWithLevelRead = this.userDao.get(userWithLevel.id());
-        final User userWithoutLevelRead = this.userDao.get(userWithoutLevel.id());
+        final User userWithLevelRead = this.userDao.get(userWithLevel.getId());
+        final User userWithoutLevelRead = this.userDao.get(userWithoutLevel.getId());
         
-        assertThat(userWithLevelRead.level()).isEqualTo(userWithLevel.level());
-        assertThat(userWithoutLevelRead.level()).isEqualTo(Level.BASIC);
+        assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
+        assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
     }
     
     @DisplayName("예외 발생시 작업 취소 여부 테스트")
@@ -139,7 +146,7 @@ class UserServiceTest {
         final UserServiceImpl userServiceImpl = new UserServiceImpl();
         userServiceImpl.setUserDao(this.userDao);
         userServiceImpl.setMailSender(new DummyMailSender());
-        userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(this.users.get(3).id()));
+        userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(this.users.get(3).getId()));
         
         final UserServiceTx testUserService = new UserServiceTx();
         testUserService.setUserService(userServiceImpl);
@@ -157,16 +164,51 @@ class UserServiceTest {
         
         }
         
-        checkLevelUpgraded(users.get(1), false);
+        this.checkLevelUpgraded(this.users.get(1), false);
+    }
+    
+    @DisplayName("Mockito를 적용한 테스트 코드")
+    @Test
+    public void mockUpgradeLevels() {
+        final UserServiceImpl userServiceImpl = new UserServiceImpl();
+        
+        final UserDao mockUserDao = mock(UserDao.class);
+        
+        when(mockUserDao.getAll()).thenReturn(this.users);
+        userServiceImpl.setUserDao(mockUserDao);
+        userServiceImpl.setUserLevelUpgradePolicy(new NormallyUserLevelUpgradePolicy());
+        
+        final MailSender mockMailSender = mock(MailSender.class);
+        userServiceImpl.setMailSender(mockMailSender);
+        
+        userServiceImpl.upgradeLevels();
+        
+        verify(mockUserDao, times(2)).update(any(User.class));
+        
+        verify(mockUserDao).update(this.users.get(1));
+        assertThat(this.users.get(1).getLevel()).isEqualTo(Level.SILVER);
+        
+        verify(mockUserDao).update(this.users.get(3));
+        assertThat(this.users.get(3).getLevel()).isEqualTo(Level.GOLD);
+        
+        
+        final ArgumentCaptor<SimpleMailMessage> mailMessageArg = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        verify(mockMailSender, times(2)).send(mailMessageArg.capture());
+        
+        final List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();
+        
+        assertThat(mailMessages.get(0).getTo()[0]).isEqualTo(this.users.get(1).getEmail());
+        assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(this.users.get(3).getEmail());
     }
 
     private void checkLevelUpgraded(final User user, final boolean upgraded) {
-        final User userUpdate = this.userDao.get(user.id());
+        final User userUpdate = this.userDao.get(user.getId());
         
         if (upgraded) {
-            assertThat(userUpdate.level()).isEqualTo(user.level().nextLevel());
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
         } else {
-            assertThat(userUpdate.level()).isEqualTo(user.level());
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
 
@@ -182,12 +224,12 @@ class UserServiceTest {
         }
     
         @Override
-        public User upgradeLevel(final User user) {
-            if (user.id().equals(this.id)) {
+        public void upgradeLevel(final User user) {
+            if (user.getId().equals(this.id)) {
                 throw new TestUserLevelUpgradePolicyException();
             }
             
-            return super.upgradeLevel(user);
+            super.upgradeLevel(user);
         }
     }
     

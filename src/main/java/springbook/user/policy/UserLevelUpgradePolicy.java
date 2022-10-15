@@ -19,10 +19,8 @@ public interface UserLevelUpgradePolicy {
      * 실제 레벨 업그레이드 작업을 하는 메서드
      *
      * @param user 사용자 정보 객체
-     *
-     * @return 레벨 업그레이드 정보가 담긴 새로운 사용자 정보 객체
      */
-    User upgradeLevel(User user);
+    void upgradeLevel(User user);
     
     /**
      * 실버 등급으로 업그레이드 하기 위한 로그인 카운트

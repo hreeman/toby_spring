@@ -32,10 +32,10 @@ class UserTest {
             );
             
             // When
-            final User upgradeUser = user.upgradeLevel();
+            user.upgradeLevel();
             
             // Then
-            assertThat(upgradeUser.level()).isEqualTo(level.nextLevel());
+            assertThat(user.getLevel()).isEqualTo(level.nextLevel());
         }
     }
     

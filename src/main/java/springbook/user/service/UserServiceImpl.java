@@ -39,13 +39,13 @@ public class UserServiceImpl implements UserService {
     
         for (final User user : users) {
             if (this.userLevelUpgradePolicy.canUpgradeLevel(user)) {
-                final User updateUser = this.userLevelUpgradePolicy.upgradeLevel(user);
+                this.userLevelUpgradePolicy.upgradeLevel(user);
             
                 // 레벨 업그레이드
-                this.userDao.update(updateUser);
+                this.userDao.update(user);
             
                 // 이메일 전송
-                this.sendUpgradeEMail(updateUser);
+                this.sendUpgradeEMail(user);
             }
         }
     }
@@ -54,15 +54,15 @@ public class UserServiceImpl implements UserService {
     public void add(final User user) {
         final User addUser;
         
-        if (user.level() == null) {
+        if (user.getLevel() == null) {
             addUser = new User(
-                    user.id(),
-                    user.name(),
-                    user.password(),
+                    user.getId(),
+                    user.getName(),
+                    user.getPassword(),
                     Level.BASIC,
-                    user.login(),
-                    user.recommend(),
-                    user.email()
+                    user.getLogin(),
+                    user.getRecommend(),
+                    user.getEmail()
             );
         } else {
             addUser = user;
@@ -79,10 +79,10 @@ public class UserServiceImpl implements UserService {
     private void sendUpgradeEMail(final User user) {
         final SimpleMailMessage mailMessage = new SimpleMailMessage();
         
-        mailMessage.setTo(user.email());
+        mailMessage.setTo(user.getEmail());
         mailMessage.setFrom("useradmin@ksug.org");
         mailMessage.setSubject("Upgrade 안내");
-        mailMessage.setText("사용자님의 등급이 " + user.level().name() + "으로 변경 되었습니다.");
+        mailMessage.setText("사용자님의 등급이 " + user.getLevel().name() + "으로 변경 되었습니다.");
         
         this.mailSender.send(mailMessage);
     }
