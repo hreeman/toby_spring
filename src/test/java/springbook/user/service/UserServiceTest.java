@@ -13,6 +13,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import springbook.learningtest.jdk.TransactionHandler;
 import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -20,6 +21,7 @@ import springbook.user.domain.User;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -148,9 +150,17 @@ class UserServiceTest {
         userServiceImpl.setMailSender(new DummyMailSender());
         userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(this.users.get(3).getId()));
         
-        final UserServiceTx testUserService = new UserServiceTx();
-        testUserService.setUserService(userServiceImpl);
-        testUserService.setTransactionManager(this.transactionManager);
+        final TransactionHandler txHandler = new TransactionHandler();
+        
+        txHandler.setTarget(userServiceImpl);
+        txHandler.setTransactionManager(this.transactionManager);
+        txHandler.setPattern("upgradeLevels");
+        
+        final UserService testUserService = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{ UserService.class },
+                txHandler
+        );
         
         // 데이터 초기화
         this.userDao.deleteAll();
