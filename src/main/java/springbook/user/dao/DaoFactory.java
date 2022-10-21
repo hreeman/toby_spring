@@ -10,6 +10,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.policy.NormallyUserLevelUpgradePolicy;
 import springbook.user.policy.UserLevelUpgradePolicy;
 import springbook.user.service.DummyMailSender;
+import springbook.user.service.TxProxyFactoryBean;
 import springbook.user.service.UserService;
 import springbook.user.service.UserServiceImpl;
 import springbook.user.service.UserServiceTx;
@@ -124,19 +125,26 @@ public class DaoFactory {
         return new DummyMailSender();
     }
     
+    @Bean(name = "userService")
+    public TxProxyFactoryBean txProxyFactoryBean() {
+        final TxProxyFactoryBean txProxyFactoryBean = new TxProxyFactoryBean();
+        
+        txProxyFactoryBean.setTarget(this.userServiceImpl());
+        txProxyFactoryBean.setTransactionManager(this.transactionManager());
+        txProxyFactoryBean.setPattern("upgradeLevels");
+        txProxyFactoryBean.setServiceInterface(UserService.class);
+        
+        return txProxyFactoryBean;
+    }
+    
     /**
      * User Service 생성
      *
      * @return UserService 인스턴스
      */
     @Bean
-    public UserService userService() {
-        final UserServiceTx userService = new UserServiceTx();
-        
-        userService.setTransactionManager(this.transactionManager());
-        userService.setUserService(this.userServiceImpl());
-        
-        return userService;
+    public UserService userService() throws Exception {
+        return (UserService) this.txProxyFactoryBean().getObject();
     }
     
     @Bean

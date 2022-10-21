@@ -7,13 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import springbook.learningtest.jdk.TransactionHandler;
 import springbook.user.dao.DaoFactory;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -54,6 +55,9 @@ class UserServiceTest {
     
     @Autowired
     PlatformTransactionManager transactionManager;
+    
+    @Autowired
+    ApplicationContext context;
     
     List<User> users; //테스트 픽스처
     
@@ -142,25 +146,20 @@ class UserServiceTest {
     }
     
     @DisplayName("예외 발생시 작업 취소 여부 테스트")
+    @DirtiesContext
     @Test
-    void upgradeAllOrNothing() {
+    void upgradeAllOrNothing() throws Exception {
         //수동으로 DI
         final UserServiceImpl userServiceImpl = new UserServiceImpl();
         userServiceImpl.setUserDao(this.userDao);
         userServiceImpl.setMailSender(new DummyMailSender());
         userServiceImpl.setUserLevelUpgradePolicy(new TestUserLevelUpgradePolicy(this.users.get(3).getId()));
         
-        final TransactionHandler txHandler = new TransactionHandler();
+        final TxProxyFactoryBean txProxyFactoryBean = this.context.getBean("&userService", TxProxyFactoryBean.class);
         
-        txHandler.setTarget(userServiceImpl);
-        txHandler.setTransactionManager(this.transactionManager);
-        txHandler.setPattern("upgradeLevels");
+        txProxyFactoryBean.setTarget(userServiceImpl);
         
-        final UserService testUserService = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{ UserService.class },
-                txHandler
-        );
+        final UserService testUserService = (UserService) txProxyFactoryBean.getObject();
         
         // 데이터 초기화
         this.userDao.deleteAll();
